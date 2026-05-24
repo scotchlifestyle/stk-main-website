@@ -384,53 +384,69 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Responsive (mobile) ─────────────────────────────── */
 @media (max-width: 760px) {
-  html { overflow-x: hidden; }
+  /* overflow guard */
+  html, body { overflow-x: hidden; }
 
-  /* Nav — logo only, no links */
+  /* Bug 1: Nav — logo + CTA only */
   .nav { padding: 12px 20px; }
   .nav-links { display: none; }
   .nav-phrase { display: none; }
+  .nav-cta { font-size: 9px; padding: 8px 14px; }
 
-  /* Section padding */
-  .sec { padding: 56px 20px; }
-  .hero { padding: 48px 20px 40px; }
-  .getting-in { padding: 64px 20px; }
-  .culture { padding: 56px 20px; }
-  .footer { padding: 44px 20px 20px; }
-  .scope { padding: 22px 20px; }
+  /* Bug 2: "20" stat — stack without overlap */
+  .what-big { font-size: 80px; }
+  .what-big-sub { margin-top: 8px; font-size: 16px; letter-spacing: 0.1em; }
+  .what-stat { padding: 0 0 10px; }
+
+  /* Bug 3: Stats / pricing — single-col, left-aligned */
+  .hero-meta { flex-wrap: wrap; gap: 20px; padding-top: 20px; }
+  .what-pulls { grid-template-columns: 1fr; }
+  .what-pull { width: 100%; text-align: left; }
+  .gi-step { text-align: left; }
+
+  /* Bug 4: Vertical padding / min-heights */
+  .sec { padding: 44px 20px; }
+  .hero { padding: 44px 20px 36px; }
+  .getting-in { padding: 50px 20px; }
+  .culture { padding: 44px 20px; }
+  .footer { padding: 36px 20px 20px; }
+  .scope { padding: 18px 20px; }
+  .choose { padding: 20px 0 0; }
+  .format-row { margin-bottom: 28px; }
+  .champ-strip { margin-top: 24px; padding: 22px 20px; }
+  .attendance-rule { padding: 18px 20px; }
+  .hero-right { min-height: auto; padding: 28px 0; }
+  .mcard { min-height: auto; }
 
   /* Headlines */
   .hero-h1 { font-size: 52px; }
   .sec-title { font-size: 36px; }
-  .what-big { font-size: 88px; }
   .prize-mega { font-size: 68px; }
   .gi-title { font-size: 42px; }
 
-  /* Hero right — scale down decorative elements */
-  .hero-right { min-height: auto; padding: 40px 0; }
+  /* Hero decorative elements */
   .hero-logo { width: 200px; height: 200px; }
   .hero-logo-glow { width: 240px; height: 240px; }
   .hero-ring { width: 260px; height: 260px; }
   .hero-ring-2 { width: 300px; height: 300px; }
 
-  /* Remaining 2-col grids not collapsed at 1100px */
-  .what-pulls { grid-template-columns: 1fr; }
+  /* Remaining 2-col grids → 1 col */
   .tiers { grid-template-columns: 1fr; }
   .merch-grid { grid-template-columns: 1fr; }
-  .mcard { grid-template-columns: 1fr; min-height: auto; }
+  .mcard { grid-template-columns: 1fr; }
   .mcard-bigpts { display: none; }
   .foot-inner { grid-template-columns: 1fr; gap: 32px; }
   .foot-bot { flex-direction: column; gap: 8px; text-align: center; }
 
-  /* Prize — champ strip 3-col → stack */
+  /* Prize champ strip → stack */
   .champ-strip { grid-template-columns: 1fr; gap: 16px; }
   .champ-stipend { border-left: none; padding-left: 0; border-top: 1px solid var(--bd-red); padding-top: 14px; align-items: flex-start; }
 
-  /* Squad — attendance rule 4-col → stack */
+  /* Squad attendance rule → stack */
   .attendance-rule { grid-template-columns: 1fr; gap: 16px; }
   .attendance-eq { border-left: none; padding-left: 0; border-top: 1px solid var(--bd-red); padding-top: 14px; }
 
-  /* Scope strip — 2-col is fine for 5 cells */
+  /* Scope strip — 2-col for 5 cells */
   .scope-inner { grid-template-columns: 1fr 1fr; }
 }
 </style>
