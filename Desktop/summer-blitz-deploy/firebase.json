@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "site": "stk-pool-league",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "/.*"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

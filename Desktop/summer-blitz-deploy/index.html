@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STK Pool League — Summer Blitz</title>
+<style>
+/* ── Fonts ───────────────────────────────────────────── */
+@font-face { font-family: 'Oswald'; src: url('fonts/Oswald-VariableFont_wght.ttf') format('truetype'); font-weight: 200 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('fonts/Inter-VariableFont.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
+
+/* ── Tokens ──────────────────────────────────────────── */
+:root {
+  --near-black: #0f0f0f;
+  --bg: #0a0a0a;
+  --surface-1: #141414;
+  --surface-2: #161616;
+  --surface-red-1: #140808;
+  --surface-red-2: #1a0808;
+  --surface-red-3: #1a0e0e;
+  --surface-red-4: #120808;
+  --red: #CC2929;
+  --red-bright: #D5413D;
+  --red-mid: #B33028;
+  --red-deep: #98180D;
+  --red-dim: #883333;
+  --fg: #fff;
+  --fg-sec: #ccc;
+  --fg-mut: #888;
+  --fg-dim: #555;
+  --fg-ghost: #333;
+  --bd-low: rgba(255,255,255,0.07);
+  --bd-subtle: rgba(255,255,255,0.05);
+  --bd-mid: rgba(255,255,255,0.14);
+  --bd-red: rgba(204,41,41,0.25);
+  --bd-red-hi: rgba(204,41,41,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); }
+body { font-family: 'Inter', sans-serif; color: var(--fg); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--red); }
+
+/* ── Diagonal stripe motif (reused) ──────────────────── */
+.stripes {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
+}
+.stripes::before, .stripes::after {
+  content: ''; position: absolute; width: 200%; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(204,41,41,0.35) 30%, rgba(213,65,61,0.55) 50%, rgba(204,41,41,0.35) 70%, transparent 100%);
+  transform: rotate(-22deg); transform-origin: 0 0;
+}
+.stripes::before { top: 18%; left: -10%; }
+.stripes::after { top: 64%; left: -10%; opacity: 0.55; }
+.stripes-dense::before { box-shadow: 0 60px 0 rgba(204,41,41,0.18), 0 120px 0 rgba(204,41,41,0.12), 0 180px 0 rgba(204,41,41,0.08); }
+
+/* ── Nav ─────────────────────────────────────────────── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 36px;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--bd-low);
+}
+.nav-logo { display: flex; align-items: center; gap: 12px; }
+.nav-logo img { width: 38px; height: 38px; object-fit: contain; }
+.nav-logo-text { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1; }
+.nav-logo-text small { display: block; font-size: 9px; color: var(--red); letter-spacing: 0.22em; margin-top: 3px; font-weight: 500; }
+.nav-links { display: flex; gap: 26px; }
+.nav-link { font-size: 10px; font-weight: 600; color: var(--fg-sec); letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: color 150ms; }
+.nav-link:hover { color: var(--red-bright); }
+.nav-right { display: flex; align-items: center; gap: 18px; }
+.nav-phrase { font-family: 'Oswald', sans-serif; font-size: 10px; color: var(--fg-dim); letter-spacing: 0.18em; text-transform: uppercase; }
+.nav-cta { font-size: 10px; font-weight: 700; color: var(--fg); background: var(--red); padding: 9px 18px; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 2px; cursor: pointer; transition: background 150ms; }
+.nav-cta:hover { background: var(--red-bright); }
+
+/* ── Hero ────────────────────────────────────────────── */
+.hero { position: relative; padding: 70px 36px 56px; overflow: hidden; background: radial-gradient(ellipse at 75% 55%, rgba(139,32,32,0.22) 0%, transparent 60%), #0a0a0a; }
+.hero-inner { display: grid; grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: center; position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; }
+.hero-left { position: relative; }
+.eyebrow { font-size: 10px; font-weight: 600; color: var(--red); letter-spacing: 0.22em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--red); }
+.hero-tag { font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 500; color: var(--fg-sec); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 6px; }
+.hero-tag span { color: var(--red); }
+.hero-h1 { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 96px; line-height: 0.88; letter-spacing: -0.005em; text-transform: uppercase; margin-bottom: 16px; }
+.hero-h1 .red { color: var(--red); }
+.hero-h1 .outline { -webkit-text-stroke: 1.5px rgba(255,255,255,0.7); color: transparent; }
+.hero-italic { font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 500; font-size: 14px; color: var(--fg-mut); letter-spacing: 0.06em; margin-bottom: 26px; max-width: 460px; line-height: 1.5; }
+.hero-italic strong { color: var(--fg); font-weight: 600; }
+.hero-btns { display: flex; gap: 14px; margin-bottom: 38px; }
+.btn-primary { font-size: 11px; font-weight: 700; color: var(--fg); background: var(--red); padding: 14px 28px; letter-spacing: 0.16em; text-transform: uppercase; border-radius: 2px; cursor: pointer; transition: background 150ms; border: none; font-family: 'Inter', sans-serif; }
+.btn-primary:hover { background: var(--red-bright); }
+.btn-ghost { font-size: 11px; font-weight: 600; color: var(--fg-sec); background: transparent; padding: 14px 28px; letter-spacing: 0.16em; text-transform: uppercase; border-radius: 2px; cursor: pointer; transition: border-color 150ms, color 150ms; border: 1px solid var(--bd-mid); font-family: 'Inter', sans-serif; }
+.btn-ghost:hover { border-color: var(--red); color: var(--fg); }
+.hero-meta { display: flex; gap: 36px; padding-top: 26px; border-top: 1px solid var(--bd-low); max-width: 520px; }
+.hero-meta-item { display: flex; flex-direction: column; gap: 4px; }
+.hero-meta-num { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; color: var(--fg); line-height: 1; }
+.hero-meta-num span { color: var(--red); }
+.hero-meta-lbl { font-size: 9px; color: var(--fg-dim); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+
+.hero-right { position: relative; display: flex; align-items: center; justify-content: center; min-height: 460px; }
+.hero-logo-glow { position: absolute; width: 480px; height: 480px; background: radial-gradient(circle, rgba(204,41,41,0.42) 0%, rgba(204,41,41,0.15) 35%, transparent 65%); filter: blur(8px); }
+.hero-logo { position: relative; width: 360px; height: 360px; object-fit: contain; filter: drop-shadow(0 0 40px rgba(204,41,41,0.4)); }
+.hero-ring { position: absolute; width: 480px; height: 480px; border-radius: 50%; border: 1px solid rgba(204,41,41,0.18); animation: spin 60s linear infinite; }
+.hero-ring::before { content: ''; position: absolute; top: -3px; left: 50%; width: 6px; height: 6px; background: var(--red); border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 10px var(--red); }
+.hero-ring-2 { width: 540px; height: 540px; animation-duration: 90s; animation-direction: reverse; border-color: rgba(204,41,41,0.1); border-style: dashed; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.hero-vert { position: absolute; left: 12px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center; font-family: 'Oswald', sans-serif; font-size: 11px; color: var(--fg-ghost); letter-spacing: 1em; text-transform: uppercase; white-space: nowrap; pointer-events: none; z-index: 3; font-weight: 600; }
+
+/* ── Scope strip ─────────────────────────────────────── */
+.scope { position: relative; padding: 26px 36px; background: var(--red); border-top: 1px solid rgba(0,0,0,0.4); border-bottom: 1px solid rgba(0,0,0,0.4); overflow: hidden; }
+.scope::before, .scope::after { content: ''; position: absolute; width: 100%; height: 1px; background: rgba(0,0,0,0.35); }
+.scope::before { top: 8px; left: 0; transform: skewY(-1.4deg); }
+.scope::after { bottom: 8px; left: 0; transform: skewY(-1.4deg); }
+.scope-inner { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; max-width: 1280px; margin: 0 auto; position: relative; z-index: 2; }
+.scope-cell { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+.scope-cell + .scope-cell { padding-left: 18px; border-left: 1px solid rgba(0,0,0,0.25); }
+.scope-num { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 36px; color: var(--fg); line-height: 1; }
+.scope-lbl { font-size: 10px; color: rgba(255,255,255,0.85); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+
+/* ── Section base ────────────────────────────────────── */
+.sec { position: relative; padding: 88px 36px; overflow: hidden; }
+.sec-inner { position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; }
+.sec-eyebrow { font-size: 10px; font-weight: 600; color: var(--red); letter-spacing: 0.22em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.sec-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--red); }
+.sec-title { font-family: 'Oswald', sans-serif; font-size: 64px; font-weight: 700; line-height: 0.95; text-transform: uppercase; letter-spacing: -0.002em; margin-bottom: 14px; }
+.sec-title .red { color: var(--red); }
+.sec-title .italic { font-style: italic; }
+.sec-title .outline { -webkit-text-stroke: 1.4px var(--fg); color: transparent; font-style: italic; }
+.sec-sub { font-family: 'Oswald', sans-serif; font-style: italic; font-size: 14px; font-weight: 500; color: var(--fg-mut); letter-spacing: 0.04em; max-width: 620px; line-height: 1.55; margin-bottom: 44px; }
+.sec-sub strong { color: var(--fg); font-style: normal; font-weight: 600; }
+
+.sec-center { text-align: center; }
+.sec-center .sec-eyebrow { justify-content: center; }
+.sec-center .sec-sub { margin-left: auto; margin-right: auto; }
+
+/* ── What Is It ──────────────────────────────────────── */
+.what {
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(204,41,41,0.04) 100%),
+    var(--bg);
+}
+.what-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; }
+.what-stat { position: relative; padding: 30px 0; }
+.what-big { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 220px; line-height: 0.82; color: transparent; -webkit-text-stroke: 1.5px var(--red); letter-spacing: -0.01em; }
+.what-big-sub { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg); margin-top: -12px; padding-left: 4px; }
+.what-big-sub span { color: var(--red); }
+.what-body { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 300; color: var(--fg-mut); line-height: 1.75; margin-bottom: 22px; }
+.what-body strong { color: var(--fg); font-weight: 600; }
+.what-pulls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 28px; }
+.what-pull { padding: 18px 20px; background: var(--surface-1); border-left: 3px solid var(--red); border-radius: 2px; }
+.what-pull-num { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; color: var(--red); line-height: 1; margin-bottom: 6px; }
+.what-pull-lbl { font-size: 10px; color: var(--fg-mut); letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; }
+
+/* ── Format / Killer Pool ────────────────────────────── */
+.format { background: linear-gradient(180deg, #0a0a0a 0%, #0f0a0a 100%); }
+.format-row { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: flex-start; margin-bottom: 56px; }
+.format-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fcard { background: var(--surface-1); padding: 22px 22px 26px; border-radius: 3px; border-left: 3px solid var(--red); position: relative; }
+.fcard-badge { position: absolute; top: -1px; right: 14px; padding: 4px 9px; background: var(--red); font-family: 'Oswald', sans-serif; font-size: 9px; font-weight: 700; color: var(--fg); letter-spacing: 0.18em; text-transform: uppercase; border-radius: 0 0 2px 2px; }
+.fcard-title { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+.fcard-title span { color: var(--red); }
+.fcard-body { font-size: 12px; color: var(--fg-mut); line-height: 1.7; font-weight: 300; }
+.fcard-body strong { color: var(--fg-sec); font-weight: 500; }
+
+.format-rules { display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--bd-low); }
+.rule { display: grid; grid-template-columns: 80px 1fr; gap: 22px; padding: 18px 0; border-bottom: 1px solid var(--bd-low); align-items: baseline; }
+.rule-tag { font-family: 'Oswald', sans-serif; font-size: 10px; font-weight: 700; color: var(--red); letter-spacing: 0.2em; text-transform: uppercase; padding-top: 2px; }
+.rule-body { font-size: 13px; color: var(--fg-mut); line-height: 1.65; font-weight: 300; }
+.rule-body strong { color: var(--fg); font-weight: 600; }
+
+/* Choose Style — A/B/C badges */
+.choose { padding: 36px 0 0; }
+.choose-h { font-family: 'Oswald', sans-serif; font-size: 36px; font-weight: 700; text-transform: uppercase; letter-spacing: -0.002em; text-align: center; margin-bottom: 8px; line-height: 1; }
+.choose-h .italic { font-style: italic; color: var(--red); }
+.choose-sub { font-family: 'Oswald', sans-serif; font-style: italic; font-size: 13px; color: var(--fg-mut); text-align: center; letter-spacing: 0.06em; margin-bottom: 36px; }
+.choose-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.ccard { background: var(--surface-1); padding: 56px 24px 28px; border-radius: 3px; position: relative; border-top: 2px solid var(--red); text-align: center; }
+.ccard.featured { background: linear-gradient(180deg, var(--surface-red-3) 0%, var(--surface-1) 100%); border-top-color: var(--red-bright); }
+.ccard-letter { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); width: 44px; height: 44px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: var(--fg); box-shadow: 0 0 0 6px var(--bg), 0 6px 20px rgba(204,41,41,0.4); }
+.ccard-title { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+.ccard-body { font-size: 12px; color: var(--fg-mut); line-height: 1.7; font-weight: 300; }
+
+/* ── Points ──────────────────────────────────────────── */
+.points { background: var(--bg); }
+.points-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: flex-start; }
+.points-table { display: flex; flex-direction: column; }
+.prow { display: grid; grid-template-columns: 40px 1fr auto; gap: 18px; align-items: center; padding: 16px 20px; background: var(--surface-1); border-radius: 2px; margin-bottom: 4px; transition: transform 150ms; }
+.prow:hover { transform: translateX(3px); background: var(--surface-2); }
+.prow-num { font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 700; color: var(--fg-ghost); letter-spacing: 0.15em; }
+.prow-action { font-size: 13px; color: var(--fg-sec); font-weight: 400; }
+.prow-action span { color: var(--fg-dim); font-size: 11px; display: block; margin-top: 2px; }
+.prow-pts { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: var(--red); white-space: nowrap; letter-spacing: 0.02em; }
+.prow-pts small { font-size: 11px; color: var(--fg-dim); letter-spacing: 0.1em; font-weight: 500; }
+
+.drink-rule { padding: 22px 24px; background: linear-gradient(135deg, var(--surface-red-2) 0%, var(--surface-red-4) 100%); border: 1px solid var(--bd-red); border-radius: 3px; }
+.drink-rule-title { font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 700; color: var(--red); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 12px; }
+.drink-rule-body { font-size: 13px; color: var(--fg-sec); font-weight: 300; line-height: 1.7; }
+.drink-rule-body strong { color: var(--fg); font-weight: 600; }
+.drink-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--bd-red); }
+.drink-stack-num { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; color: var(--fg); line-height: 1; margin-bottom: 4px; }
+.drink-stack-num span { color: var(--red); }
+.drink-stack-lbl { font-size: 9px; color: var(--fg-mut); letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; }
+
+.cap-note { margin-top: 20px; padding: 16px 20px; background: rgba(255,255,255,0.025); border-left: 2px solid var(--fg-ghost); font-size: 12px; color: var(--fg-mut); line-height: 1.65; font-weight: 300; border-radius: 0 2px 2px 0; }
+.cap-note strong { color: var(--fg-sec); font-weight: 500; }
+
+/* ── Tiers ───────────────────────────────────────────── */
+.tiers-sec { background: linear-gradient(180deg, #0a0a0a 0%, #110808 100%); }
+.tiers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.tcard { background: var(--surface-1); padding: 28px 20px 24px; border-radius: 3px; position: relative; overflow: hidden; transition: transform 150ms; }
+.tcard:hover { transform: translateY(-3px); }
+.tcard::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--tier-color); }
+.tcard-num { font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 700; color: var(--fg-ghost); letter-spacing: 0.2em; margin-bottom: 14px; }
+.tcard-name { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; margin-bottom: 14px; }
+.tcard-strikes { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(204,41,41,0.12); border: 1px solid var(--bd-red); border-radius: 2px; font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; }
+.tcard-strikes svg { flex-shrink: 0; }
+.tcard-criteria { font-size: 11px; color: var(--fg-mut); line-height: 1.65; font-weight: 300; }
+.tcard-criteria strong { color: var(--fg-sec); font-weight: 500; }
+
+/* ── Merch ───────────────────────────────────────────── */
+.merch { background: var(--bg); }
+.merch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mcard { position: relative; background: var(--surface-1); border-radius: 3px; padding: 36px 36px 40px; overflow: hidden; display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center; min-height: 220px; }
+.mcard.locked { background: linear-gradient(135deg, var(--surface-red-3) 0%, var(--surface-1) 60%); border: 1px solid var(--bd-red); }
+.mcard-left { position: relative; z-index: 2; }
+.mcard-threshold { font-family: 'Oswald', sans-serif; font-size: 12px; font-weight: 700; color: var(--red); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 10px; }
+.mcard-title { font-family: 'Oswald', sans-serif; font-size: 38px; font-weight: 700; text-transform: uppercase; letter-spacing: -0.002em; line-height: 1; margin-bottom: 14px; }
+.mcard-title .italic { font-style: italic; }
+.mcard-body { font-size: 12px; color: var(--fg-mut); line-height: 1.65; max-width: 320px; font-weight: 300; }
+.mcard-art { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
+.mcard-art svg { width: 100%; height: 100%; opacity: 0.85; }
+.mcard-bigpts { font-family: 'Oswald', sans-serif; position: absolute; right: 24px; bottom: 14px; font-size: 96px; font-weight: 700; color: transparent; -webkit-text-stroke: 1.5px rgba(204,41,41,0.18); line-height: 1; letter-spacing: -0.01em; pointer-events: none; }
+
+/* ── Prize Pool ──────────────────────────────────────── */
+.prize { background: linear-gradient(180deg, #0a0a0a 0%, #1a0808 100%); position: relative; }
+.prize-hero { display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; align-items: center; }
+.prize-mega { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 180px; line-height: 0.85; letter-spacing: -0.01em; background: linear-gradient(180deg, #ffffff 0%, #e0e0e0 30%, #888 60%, #f5f5f5 80%, #ddd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 60px rgba(204,41,41,0.2); }
+.prize-mega-lbl { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; color: var(--red); letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 6px; }
+.prize-mega-sub { font-size: 12px; color: var(--fg-mut); margin-top: 14px; letter-spacing: 0.06em; font-weight: 300; line-height: 1.6; max-width: 320px; }
+
+.payouts { display: flex; flex-direction: column; gap: 6px; }
+.payout { display: grid; grid-template-columns: 56px 1fr auto; gap: 18px; align-items: center; padding: 14px 22px; background: rgba(255,255,255,0.03); border-radius: 2px; border-left: 2px solid var(--red); }
+.payout.gold { background: linear-gradient(90deg, rgba(204,41,41,0.18) 0%, rgba(204,41,41,0.04) 100%); border-left-width: 4px; }
+.payout-pos { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: var(--fg); line-height: 1; }
+.payout.gold .payout-pos { color: var(--red); font-size: 26px; }
+.payout-lbl { font-size: 11px; color: var(--fg-mut); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; }
+.payout-amt { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: var(--fg); white-space: nowrap; letter-spacing: 0.02em; }
+.payout.gold .payout-amt { color: var(--red); font-size: 26px; }
+
+.champ-strip { margin-top: 56px; padding: 30px 36px; background: var(--surface-red-2); border: 1px solid var(--bd-red); border-radius: 3px; display: grid; grid-template-columns: auto 1fr auto; gap: 36px; align-items: center; }
+.champ-icon { width: 64px; height: 64px; }
+.champ-text { display: flex; flex-direction: column; gap: 4px; }
+.champ-title { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.champ-title .red { color: var(--red); }
+.champ-body { font-size: 12px; color: var(--fg-mut); font-weight: 300; line-height: 1.6; max-width: 540px; }
+.champ-stipend { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding-left: 36px; border-left: 1px solid var(--bd-red); }
+.champ-stipend-amt { font-family: 'Oswald', sans-serif; font-size: 30px; font-weight: 700; color: var(--red); line-height: 1; }
+.champ-stipend-lbl { font-size: 9px; color: var(--fg-mut); letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; text-align: right; }
+
+/* ── Squad Bonuses ───────────────────────────────────── */
+.squad { background: var(--bg); position: relative; }
+.squad-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 36px; }
+.scard { background: var(--surface-1); border-radius: 3px; padding: 32px 28px 28px; position: relative; overflow: hidden; }
+.scard::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--red), transparent); }
+.scard-laurel { position: absolute; top: 24px; right: 24px; width: 44px; height: 44px; opacity: 0.4; }
+.scard-amt { font-family: 'Oswald', sans-serif; font-size: 52px; font-weight: 700; color: var(--fg); line-height: 1; letter-spacing: -0.01em; margin-bottom: 6px; }
+.scard-amt .small { font-size: 28px; color: var(--red); vertical-align: top; }
+.scard-name { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.scard-name .red { color: var(--red); }
+.scard-body { font-size: 12px; color: var(--fg-mut); line-height: 1.65; font-weight: 300; }
+
+.attendance-rule { display: grid; grid-template-columns: auto 1fr auto auto; gap: 36px; align-items: center; padding: 22px 30px; background: var(--surface-red-2); border: 1px solid var(--bd-red); border-radius: 3px; }
+.attendance-pct { font-family: 'Oswald', sans-serif; font-size: 48px; font-weight: 700; color: var(--red); line-height: 1; }
+.attendance-text { display: flex; flex-direction: column; gap: 4px; }
+.attendance-h { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+.attendance-b { font-size: 12px; color: var(--fg-mut); font-weight: 300; line-height: 1.5; max-width: 480px; }
+.attendance-eq { font-family: 'Oswald', sans-serif; font-size: 11px; color: var(--fg-mut); letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; padding-left: 36px; border-left: 1px solid var(--bd-red); }
+.attendance-eq strong { color: var(--fg); font-weight: 700; font-size: 18px; display: block; margin-top: 4px; }
+
+/* ── Getting In CTA ──────────────────────────────────── */
+.getting-in { background: linear-gradient(180deg, #120808 0%, #0a0404 100%); position: relative; padding: 100px 36px; }
+.gi-inner { max-width: 1000px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+.gi-eyebrow { color: var(--red); }
+.gi-title { font-family: 'Oswald', sans-serif; font-size: 88px; font-weight: 700; text-transform: uppercase; line-height: 0.9; letter-spacing: -0.005em; margin-bottom: 14px; }
+.gi-title .red { color: var(--red); }
+.gi-title .italic { font-style: italic; }
+.gi-sub { font-family: 'Oswald', sans-serif; font-style: italic; font-size: 16px; color: var(--fg-sec); letter-spacing: 0.06em; margin-bottom: 44px; }
+.gi-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 44px; }
+.gi-step { padding: 28px 22px; background: rgba(255,255,255,0.02); border: 1px solid var(--bd-low); border-radius: 3px; text-align: left; position: relative; }
+.gi-step::before { content: attr(data-num); position: absolute; top: 22px; right: 22px; font-family: 'Oswald', sans-serif; font-size: 36px; font-weight: 700; color: rgba(204,41,41,0.18); line-height: 1; letter-spacing: -0.02em; }
+.gi-step-title { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--red); margin-bottom: 10px; }
+.gi-step-body { font-size: 13px; color: var(--fg-sec); font-weight: 300; line-height: 1.6; margin-bottom: 12px; }
+.gi-step-cost { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: var(--fg); letter-spacing: 0.02em; }
+.gi-step-cost small { font-size: 10px; color: var(--fg-mut); letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; margin-left: 6px; }
+.gi-cta { font-size: 12px; font-weight: 700; color: var(--fg); background: var(--red); padding: 18px 44px; letter-spacing: 0.18em; text-transform: uppercase; border-radius: 2px; cursor: pointer; transition: background 150ms; border: none; font-family: 'Inter', sans-serif; display: inline-block; }
+.gi-cta:hover { background: var(--red-bright); }
+.gi-fine { font-size: 11px; color: var(--fg-dim); margin-top: 14px; letter-spacing: 0.08em; }
+
+/* ── Culture ─────────────────────────────────────────── */
+.culture { background: var(--bg); padding: 80px 36px; }
+.culture-inner { max-width: 920px; margin: 0 auto; text-align: center; }
+.culture-quote { font-family: 'Oswald', sans-serif; font-size: 36px; font-weight: 500; line-height: 1.15; letter-spacing: 0.01em; color: var(--fg-sec); margin-bottom: 28px; text-transform: uppercase; }
+.culture-quote .red { color: var(--red); font-weight: 700; }
+.culture-quote .italic { font-style: italic; }
+.culture-body { font-size: 13px; color: var(--fg-mut); line-height: 1.8; max-width: 640px; margin: 0 auto; font-weight: 300; }
+.culture-body strong { color: var(--fg); font-weight: 500; }
+
+/* ── Footer ──────────────────────────────────────────── */
+.footer { background: #060606; padding: 50px 36px 24px; border-top: 1px solid var(--bd-low); }
+.foot-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 56px; }
+.foot-brand { display: flex; flex-direction: column; gap: 16px; }
+.foot-logo { display: flex; align-items: center; gap: 14px; }
+.foot-logo img { width: 48px; height: 48px; object-fit: contain; }
+.foot-logo-text { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.foot-logo-text small { display: block; font-size: 10px; color: var(--red); letter-spacing: 0.22em; margin-top: 4px; font-weight: 500; }
+.foot-tag { font-family: 'Oswald', sans-serif; font-size: 11px; color: var(--fg-dim); letter-spacing: 0.2em; text-transform: uppercase; font-weight: 500; }
+.foot-col h4 { font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 14px; }
+.foot-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.foot-col li { font-size: 11px; color: var(--fg-mut); letter-spacing: 0.04em; cursor: pointer; transition: color 150ms; font-weight: 400; }
+.foot-col li:hover { color: var(--fg); }
+.foot-bot { max-width: 1280px; margin: 36px auto 0; padding-top: 22px; border-top: 1px solid var(--bd-subtle); display: flex; justify-content: space-between; align-items: center; }
+.foot-copy { font-size: 10px; color: var(--fg-ghost); letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500; }
+.foot-mark { font-family: 'Oswald', sans-serif; font-size: 10px; color: var(--fg-ghost); letter-spacing: 0.3em; text-transform: uppercase; }
+
+/* ── Modal ───────────────────────────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal { background: var(--surface-1); border: 1px solid var(--bd-red); border-radius: 3px; padding: 40px 36px; max-width: 440px; width: 90%; position: relative; }
+.modal::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--red), transparent); }
+.modal-eyebrow { font-size: 10px; font-weight: 600; color: var(--red); letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 14px; }
+.modal-title { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; line-height: 1; }
+.modal-sub { font-size: 12px; color: var(--fg-mut); margin-bottom: 24px; line-height: 1.5; font-weight: 300; }
+.modal input { width: 100%; background: var(--bg); border: 1px solid var(--bd-low); border-radius: 2px; padding: 12px 14px; color: var(--fg); font-size: 13px; font-family: 'Inter', sans-serif; margin-bottom: 10px; outline: none; transition: border-color 150ms; }
+.modal input:focus { border-color: var(--red); }
+.modal-cancel { font-size: 10px; color: var(--fg-dim); text-align: center; margin-top: 16px; cursor: pointer; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; }
+.modal-cancel:hover { color: var(--fg-mut); }
+.modal { max-height: 90vh; overflow-y: auto; }
+.modal select { width: 100%; background: var(--bg); border: 1px solid var(--bd-low); border-radius: 2px; padding: 12px 14px; color: var(--fg); font-size: 13px; font-family: 'Inter', sans-serif; margin-bottom: 10px; outline: none; transition: border-color 150ms; -webkit-appearance: none; appearance: none; cursor: pointer; }
+.modal select:focus { border-color: var(--red); }
+.modal select:invalid, .modal select option[value=""] { color: var(--fg-dim); }
+.f-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.f-grid2 input, .f-grid2 select { margin-bottom: 10px; }
+.f-label { font-family: 'Oswald', sans-serif; font-size: 10px; font-weight: 700; color: var(--fg-sec); letter-spacing: 0.2em; text-transform: uppercase; margin: 16px 0 8px; }
+.f-note { font-size: 11px; color: var(--fg-dim); margin-bottom: 8px; line-height: 1.4; font-weight: 300; }
+.f-warn { font-size: 11px; color: var(--fg-mut); background: rgba(204,41,41,0.08); border: 1px solid var(--bd-red); border-radius: 2px; padding: 12px 14px; margin: 18px 0 14px; line-height: 1.5; font-weight: 300; }
+.f-warn strong { color: var(--red); font-weight: 700; }
+.f-error { font-size: 12px; color: var(--red-bright); margin-bottom: 12px; font-weight: 500; }
+/* FAQ */
+.faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 56px; }
+.faq-item { border-top: 1px solid var(--bd-low); padding: 22px 0; }
+.faq-q { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em; margin-bottom: 10px; color: var(--fg); }
+.faq-a { font-size: 13px; color: var(--fg-mut); line-height: 1.65; font-weight: 300; }
+@media (max-width: 760px) { .faq-grid { grid-template-columns: 1fr; gap: 0; } }
+
+/* ── Tweaks panel ────────────────────────────────────── */
+#tweaks { display: none; position: fixed; bottom: 20px; right: 20px; background: #1a1a1a; border: 1px solid var(--bd-mid); border-radius: 4px; padding: 18px; z-index: 999; min-width: 240px; }
+#tweaks h3 { font-family: 'Oswald', sans-serif; font-size: 12px; color: var(--red); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 14px; font-weight: 700; }
+#tweaks label { display: block; font-size: 10px; color: var(--fg-mut); margin: 12px 0 6px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+#tweaks input[type=color] { width: 100%; height: 36px; background: var(--bg); border: 1px solid var(--bd-low); border-radius: 2px; cursor: pointer; }
+#tweaks .row { display: flex; gap: 8px; }
+#tweaks .swatch { flex: 1; height: 32px; border-radius: 2px; cursor: pointer; border: 2px solid transparent; transition: border-color 150ms; }
+#tweaks .swatch.active { border-color: var(--fg); }
+
+/* ── Responsive (basic) ──────────────────────────────── */
+@media (max-width: 1100px) {
+  .hero-inner, .what-grid, .format-row, .points-grid, .prize-hero { grid-template-columns: 1fr; gap: 36px; }
+  .hero-h1 { font-size: 64px; }
+  .sec-title { font-size: 44px; }
+  .what-big { font-size: 140px; }
+  .prize-mega { font-size: 110px; }
+  .gi-title { font-size: 56px; }
+  .tiers, .scope-inner { grid-template-columns: repeat(2, 1fr); }
+  .squad-cards, .choose-cards, .gi-steps, .format-cards { grid-template-columns: 1fr; }
+  .foot-inner { grid-template-columns: 1fr 1fr; }
+  .hero-vert { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══════════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-logo">
+    <img src="assets/logo-skull-circle.png" alt="STK">
+    <div class="nav-logo-text">Shoot to Kill<small>Pool League</small></div>
+  </div>
+  <div class="nav-links">
+    <span class="nav-link">Format</span>
+    <span class="nav-link">Points</span>
+    <span class="nav-link">Tiers</span>
+    <span class="nav-link">Prize Pool</span>
+    <span class="nav-link">Squad Bonuses</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-phrase">Summer Blitz · 2026</span>
+    <div class="nav-cta" onclick="openModal()">Join the League</div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═════════════════════════════════════════ -->
+<section class="hero">
+  <div class="stripes stripes-dense"></div>
+  <div class="hero-vert">Shoot · to · Kill · Pool · League</div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="eyebrow">Season One · June through October</div>
+      <div class="hero-tag">Shoot to Kill <span>×</span> Summer Blitz</div>
+      <h1 class="hero-h1">Summer<br><span class="red">Blitz.</span></h1>
+      <p class="hero-italic"><strong>20 weeks. One leaderboard. One champion.</strong> An individual points race open to every STK player. No teams. No waiting. Just you, the table, and a leaderboard that never sleeps.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="openModal()">Join the League</button>
+        <button class="btn-ghost" onclick="scrollToSec('format')">See the Format</button>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-meta-item"><div class="hero-meta-num"><span>$</span>100K</div><div class="hero-meta-lbl">Prize Pool</div></div>
+        <div class="hero-meta-item"><div class="hero-meta-num">20</div><div class="hero-meta-lbl">Weeks of Play</div></div>
+        <div class="hero-meta-item"><div class="hero-meta-num">50</div><div class="hero-meta-lbl">Matches Max</div></div>
+        <div class="hero-meta-item"><div class="hero-meta-num"><span>$</span>1K</div><div class="hero-meta-lbl">Travel Stipend</div></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-logo-glow"></div>
+      <div class="hero-ring hero-ring-2"></div>
+      <div class="hero-ring"></div>
+      <img class="hero-logo" src="assets/logo-skull-circle.png" alt="STK Skull">
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCOPE STRIP ══════════════════════════════════ -->
+<section class="scope">
+  <div class="scope-inner">
+    <div class="scope-cell"><div class="scope-num">20</div><div class="scope-lbl">Weeks · Jun→Oct</div></div>
+    <div class="scope-cell"><div class="scope-num">2</div><div class="scope-lbl">Matches per Night</div></div>
+    <div class="scope-cell"><div class="scope-num">50</div><div class="scope-lbl">Matches per Player</div></div>
+    <div class="scope-cell"><div class="scope-num">$100K</div><div class="scope-lbl">Championship Pool</div></div>
+    <div class="scope-cell"><div class="scope-num">LA</div><div class="scope-lbl">Championship Finals</div></div>
+  </div>
+</section>
+
+<!-- ═══ WHAT IS IT ═══════════════════════════════════ -->
+<section class="sec what">
+  <div class="sec-inner">
+    <div class="what-grid">
+      <div>
+        <div class="sec-eyebrow">What it is</div>
+        <h2 class="sec-title">Play any day.<br><span class="italic red">Every</span> match counts.</h2>
+        <div class="what-body">Summer Blitz is a <strong>20-week individual points race</strong> open to every STK player. No team captains. No politics. No players doing the bare minimum all season and showing up to cash in on playoffs they didn't earn.</div>
+        <div class="what-body">Pay your <strong>$50 league dues</strong>, choose your home venue, and you're in. That's your squad. Green fees are <strong>$10 per match</strong>. Two matches run per night. The leaderboard never sleeps.</div>
+        <div class="what-pulls">
+          <div class="what-pull"><div class="what-pull-num">$50</div><div class="what-pull-lbl">League Dues</div></div>
+          <div class="what-pull"><div class="what-pull-num">$10</div><div class="what-pull-lbl">Green Fees / Match</div></div>
+        </div>
+      </div>
+      <div class="what-stat">
+        <div class="what-big">20</div>
+        <div class="what-big-sub">Weeks <span>·</span> No teams <span>·</span> No waiting</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FORMAT ═══════════════════════════════════════ -->
+<section class="sec format" id="format">
+  <div class="stripes"></div>
+  <div class="sec-inner">
+    <div class="sec-eyebrow">Official match format</div>
+    <h2 class="sec-title">One shot. One table.<br><span class="red">No mercy.</span> <span class="outline">Be the last.</span></h2>
+    <p class="sec-sub">Killer Pool is simple. Everyone shares one table, one shot per turn. <strong>Pocket any ball to survive.</strong> Miss, scratch, or foul and you take a strike. Hit your tier's limit and you're out. The last player standing wins the match and earns <strong>+5 bonus points.</strong></p>
+
+    <div class="format-row">
+      <div class="format-cards">
+        <div class="fcard">
+          <div class="fcard-badge">01</div>
+          <div class="fcard-title">Player <span>order</span></div>
+          <div class="fcard-body">Order is randomized before every match. <strong>One player</strong> is randomly selected to draw a ball from the tray. The Game Runner hits shuffle that many times to set the rotation.</div>
+        </div>
+        <div class="fcard">
+          <div class="fcard-badge">02</div>
+          <div class="fcard-title">The <span>break</span></div>
+          <div class="fcard-body">Breaks must be legal — minimum 4 balls must contact a rail. Pocket a ball on the break, your turn ends. <strong>Dry break, shoot again</strong> from wherever the cue ball rests.</div>
+        </div>
+        <div class="fcard">
+          <div class="fcard-badge">03</div>
+          <div class="fcard-title">Fouls &amp; <span>strikes</span></div>
+          <div class="fcard-body">A miss, scratch, or foul earns a strike. Scratches result in <strong>ball in hand</strong> for the next player in rotation. Elimination is determined by handicap tier, not a flat count.</div>
+        </div>
+        <div class="fcard">
+          <div class="fcard-badge">04</div>
+          <div class="fcard-title">Endgame <span>protocol</span></div>
+          <div class="fcard-body">Matches run about 1.5 hours. If too many remain after 1 hour, the rack reduces by one ball each rerack until <strong>one ball sits in the center.</strong> Last one in wins.</div>
+        </div>
+      </div>
+
+      <div class="format-rules">
+        <div class="rule"><div class="rule-tag">Shot Clock</div><div class="rule-body"><strong>30s to approach</strong> the table. <strong>60s to execute</strong> the shot. <strong>60s coaching session.</strong> 10-second call announced. Clock expiry earns a strike. Applied at Game Runner discretion to players who consistently delay play.</div></div>
+        <div class="rule"><div class="rule-tag">Coaching</div><div class="rule-body">Up to <strong>5 coaches per match.</strong> The player who shoots immediately after the player being coached cannot serve as that player's coach.</div></div>
+        <div class="rule"><div class="rule-tag">Advanced</div><div class="rule-body"><strong>Jump shots and massés are permitted.</strong> The last ball on the table is always live. When all balls are pocketed, the table re-racks and play continues.</div></div>
+        <div class="rule"><div class="rule-tag">Out of Turn</div><div class="rule-body">If a player accidentally shoots out of turn, the outcome is void, all balls remain in place, and the correct player resumes their turn with <strong>ball in hand.</strong></div></div>
+        <div class="rule"><div class="rule-tag">Rulings</div><div class="rule-body">Game Runner has final say. To dispute, flag immediately before play continues. Reviews are not resolved during the match. Both parties submit written accounts through the app, escalated to the Regional Manager.</div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ POINTS ═══════════════════════════════════════ -->
+<section class="sec points">
+  <div class="sec-inner">
+    <div class="sec-eyebrow">How points are earned</div>
+    <h2 class="sec-title">Play more. <span class="italic red">Score more.</span><br>Win more.</h2>
+    <p class="sec-sub">Every match contributes to your individual leaderboard rank. Pocket balls. Win matches. Order drinks. Post tagged content. Refer new venues. <strong>The leaderboard never sleeps.</strong></p>
+
+    <div class="points-grid">
+      <div class="points-table">
+        <div class="prow">
+          <div class="prow-num">01</div>
+          <div class="prow-action">Ball pocketed<span>Each ball you sink</span></div>
+          <div class="prow-pts">+1 <small>pt</small></div>
+        </div>
+        <div class="prow">
+          <div class="prow-num">02</div>
+          <div class="prow-action">Win the match<span>Last player standing</span></div>
+          <div class="prow-pts">+5 <small>pts</small></div>
+        </div>
+        <div class="prow">
+          <div class="prow-num">03</div>
+          <div class="prow-action">Place 2 orders within a single match<span>Verified by Game Runner</span></div>
+          <div class="prow-pts">+5 <small>pts</small></div>
+        </div>
+        <div class="prow">
+          <div class="prow-num">04</div>
+          <div class="prow-action">Tagged photo posted<span>@stkpoolleague on socials</span></div>
+          <div class="prow-pts">+1 <small>pt</small></div>
+        </div>
+        <div class="prow">
+          <div class="prow-num">05</div>
+          <div class="prow-action">Tagged video posted<span>@stkpoolleague on socials</span></div>
+          <div class="prow-pts">+2 <small>pts</small></div>
+        </div>
+        <div class="prow">
+          <div class="prow-num">06</div>
+          <div class="prow-action">Refer and activate a new venue<span>Awarded once activated</span></div>
+          <div class="prow-pts">+50 <small>pts</small></div>
+        </div>
+        <div class="cap-note"><strong>Tier cap:</strong> Rookie Reapers and Smooth Shooters can play a maximum of <strong>60 matches</strong> per season to accrue points. Every other tier caps at <strong>50 matches.</strong></div>
+      </div>
+
+      <div>
+        <div class="drink-rule">
+          <div class="drink-rule-title">Drink Points Rule</div>
+          <div class="drink-rule-body">A player must <strong>place 2 orders within a single match</strong> to earn the +5 drink bonus. Two matches run per night. The <strong>maximum drink bonus per match night is 10 points</strong> across both matches combined.</div>
+          <div class="drink-stack">
+            <div><div class="drink-stack-num">+<span>10</span></div><div class="drink-stack-lbl">Max per Night</div></div>
+            <div><div class="drink-stack-num">+<span>5</span></div><div class="drink-stack-lbl">Per Match Bonus</div></div>
+          </div>
+        </div>
+        <div class="cap-note" style="margin-top: 12px;"><strong>Referral bonus:</strong> 50 points are awarded once the venue is activated, not at referral. A successful referral also unlocks a <strong>second qualification path</strong> for squad bonuses.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TIERS ═══════════════════════════════════════ -->
+<section class="sec tiers-sec">
+  <div class="stripes"></div>
+  <div class="sec-inner">
+    <div class="sec-eyebrow">Handicap tiers</div>
+    <h2 class="sec-title">Everyone has <span class="italic red">a shot.</span></h2>
+    <p class="sec-sub">Beginners get five strikes. Pros play one-handed, opposite-handed, or must bank every shot. <strong>A Rookie Reaper and a Ghost Tier pro play on the same table, in the same match, every week.</strong> This is the unlock.</p>
+
+    <div class="tiers">
+      <div class="tcard" style="--tier-color: #555;">
+        <div class="tcard-num">Tier 01</div>
+        <div class="tcard-name">Rookie<br>Reaper</div>
+        <div class="tcard-strikes">
+          <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5"/></svg>
+          5 Strikes
+        </div>
+        <div class="tcard-criteria"><strong>Under 1 year of play.</strong> Inconsistent fundamentals. Provisional until confirmed by Game Runner and Regional Manager at 75% confidence.</div>
+      </div>
+      <div class="tcard" style="--tier-color: #777;">
+        <div class="tcard-num">Tier 02</div>
+        <div class="tcard-name">Smooth<br>Shooter</div>
+        <div class="tcard-strikes">
+          <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5"/></svg>
+          4 Strikes
+        </div>
+        <div class="tcard-criteria"><strong>2+ years, APA 2–4.</strong> Some league experience. Still developing. Provisional, same confirmation process.</div>
+      </div>
+      <div class="tcard" style="--tier-color: #CC2929;">
+        <div class="tcard-num">Tier 03</div>
+        <div class="tcard-name">Street<br>Shark</div>
+        <div class="tcard-strikes">
+          <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5"/></svg>
+          3 Strikes
+        </div>
+        <div class="tcard-criteria"><strong>3+ years, APA 5–7</strong> or Fargo 400–549. The backbone of STK. Most players live here.</div>
+      </div>
+      <div class="tcard" style="--tier-color: #a00;">
+        <div class="tcard-num">Tier 04</div>
+        <div class="tcard-name">Dead<br>Eye</div>
+        <div class="tcard-strikes">
+          <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5"/></svg>
+          2 Strikes
+        </div>
+        <div class="tcard-criteria"><strong>Fargo 550+.</strong> Verified by name or player number. Statistical performance used if no rating exists. Enough heat to win.</div>
+      </div>
+      <div class="tcard" style="--tier-color: #7a0000;">
+        <div class="tcard-num">Tier 05</div>
+        <div class="tcard-name">Ghost<br>Tier</div>
+        <div class="tcard-strikes">
+          <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5"/></svg>
+          3 + Challenge
+        </div>
+        <div class="tcard-criteria"><strong>Fargo 650+.</strong> Must execute every shot one-handed, opposite-handed, or as a bank shot. Player chooses their method each turn.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MERCH UNLOCK ═════════════════════════════════ -->
+<section class="sec merch">
+  <div class="sec-inner">
+    <div class="sec-eyebrow">Merch unlock system</div>
+    <h2 class="sec-title">The more you play,<br><span class="italic red">the more you unlock.</span></h2>
+    <p class="sec-sub">Points unlock the right to purchase exclusive STK merch. <strong>Purchase-eligible access, not automatic distribution.</strong> Both thresholds are cumulative across the season and do not reset. Two items are available in Season One.</p>
+
+    <div class="merch-grid">
+      <div class="mcard locked">
+        <div class="mcard-left">
+          <div class="mcard-threshold">300 Points · Unlocked</div>
+          <div class="mcard-title">STK <span class="italic">T-Shirt</span></div>
+          <div class="mcard-body">Reachable by a consistent mid-tier player around week six or seven of the season. Once unlocked, the t-shirt is available for purchase at the price set by STK.</div>
+        </div>
+        <div class="mcard-art">
+          <svg viewBox="0 0 120 120" fill="none"><path d="M30 32 L42 22 L60 28 L78 22 L90 32 L100 44 L88 52 L84 48 L84 100 L36 100 L36 48 L32 52 L20 44 Z" fill="none" stroke="#CC2929" stroke-width="2"/><circle cx="60" cy="62" r="9" fill="none" stroke="#CC2929" stroke-width="1.5"/><text x="60" y="66" text-anchor="middle" font-family="Oswald" font-size="11" font-weight="700" fill="#CC2929">STK</text></svg>
+        </div>
+        <div class="mcard-bigpts">300</div>
+      </div>
+      <div class="mcard locked">
+        <div class="mcard-left">
+          <div class="mcard-threshold">750 Points · Unlocked</div>
+          <div class="mcard-title">STK <span class="italic">Jacket</span></div>
+          <div class="mcard-body">Requires sustained attendance, drink engagement, and competitive performance across the bulk of the season. The jacket is the marker of a full-season commitment.</div>
+        </div>
+        <div class="mcard-art">
+          <svg viewBox="0 0 120 120" fill="none"><path d="M22 30 L42 22 L48 32 L60 30 L72 32 L78 22 L98 30 L100 50 L88 54 L88 100 L32 100 L32 54 L20 50 Z" fill="none" stroke="#CC2929" stroke-width="2"/><line x1="60" y1="30" x2="60" y2="100" stroke="#CC2929" stroke-width="1.5"/><circle cx="60" cy="48" r="2" fill="#CC2929"/><circle cx="60" cy="62" r="2" fill="#CC2929"/><circle cx="60" cy="76" r="2" fill="#CC2929"/></svg>
+        </div>
+        <div class="mcard-bigpts">750</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRIZE POOL ═══════════════════════════════════ -->
+<section class="sec prize">
+  <div class="stripes"></div>
+  <div class="sec-inner">
+    <div class="sec-eyebrow">The Championship</div>
+    <h2 class="sec-title">One leaderboard.<br><span class="italic red">One champion.</span></h2>
+
+    <div class="prize-hero" style="margin-top: 36px;">
+      <div>
+        <div class="prize-mega-lbl">Summer Blitz Prize Pool</div>
+        <div class="prize-mega">$100,000</div>
+        <div class="prize-mega-sub">The top players on the leaderboard at the end of 20 weeks qualify for the STK Summer Blitz Championship in Los Angeles. The championship event is a full spirits festival experience.</div>
+      </div>
+      <div class="payouts">
+        <div class="payout gold"><div class="payout-pos">1st</div><div class="payout-lbl">First Place</div><div class="payout-amt">$40,000</div></div>
+        <div class="payout"><div class="payout-pos">2nd</div><div class="payout-lbl">Second Place</div><div class="payout-amt">$24,000</div></div>
+        <div class="payout"><div class="payout-pos">3rd</div><div class="payout-lbl">Third Place</div><div class="payout-amt">$15,000</div></div>
+        <div class="payout"><div class="payout-pos">4th</div><div class="payout-lbl">Fourth Place</div><div class="payout-amt">$10,000</div></div>
+        <div class="payout"><div class="payout-pos">5th</div><div class="payout-lbl">Fifth Place</div><div class="payout-amt">$6,000</div></div>
+        <div class="payout"><div class="payout-pos">6–10</div><div class="payout-lbl">Sixth through Tenth</div><div class="payout-amt">$1,000 ea.</div></div>
+      </div>
+    </div>
+
+    <div class="champ-strip">
+      <svg class="champ-icon" viewBox="0 0 64 64" fill="none">
+        <path d="M16 12h32v18a16 16 0 0 1-32 0V12z" fill="none" stroke="#CC2929" stroke-width="2"/>
+        <path d="M16 16H8v8a8 8 0 0 0 8 8" fill="none" stroke="#CC2929" stroke-width="2"/>
+        <path d="M48 16h8v8a8 8 0 0 1-8 8" fill="none" stroke="#CC2929" stroke-width="2"/>
+        <path d="M24 46h16v6H24z" fill="none" stroke="#CC2929" stroke-width="2"/>
+        <path d="M20 54h24v4H20z" fill="#CC2929"/>
+      </svg>
+      <div class="champ-text">
+        <div class="champ-title">Every qualifier flies <span class="red">to LA.</span></div>
+        <div class="champ-body">Every qualifying player receives a travel stipend. The championship is held in Los Angeles as a full spirits festival experience. There is no better way to close out your summer.</div>
+      </div>
+      <div class="champ-stipend">
+        <div class="champ-stipend-amt">$1,000</div>
+        <div class="champ-stipend-lbl">Travel Stipend<br>Per Qualifier</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SQUAD BONUSES ═══════════════════════════════ -->
+<section class="sec squad">
+  <div class="sec-inner">
+    <div class="sec-eyebrow">Squad bonuses</div>
+    <h2 class="sec-title">Your home venue<br>is your <span class="italic red">squad.</span></h2>
+    <p class="sec-sub">Three additional bonuses are won by players and <strong>distributed equally among qualifying members of the squad.</strong> Your squad is the group of players signed up to your home venue. Show up. Improve. Compete.</p>
+
+    <div class="squad-cards">
+      <div class="scard">
+        <svg class="scard-laurel" viewBox="0 0 44 44" fill="none">
+          <path d="M22 4v36" stroke="#CC2929" stroke-width="1.5"/>
+          <path d="M22 12c-4-2-8-4-10-2s2 8 10 10" stroke="#CC2929" stroke-width="1.5" fill="none"/>
+          <path d="M22 12c4-2 8-4 10-2s-2 8-10 10" stroke="#CC2929" stroke-width="1.5" fill="none"/>
+          <path d="M22 24c-4-2-8-4-10-2s2 8 10 10" stroke="#CC2929" stroke-width="1.5" fill="none"/>
+          <path d="M22 24c4-2 8-4 10-2s-2 8-10 10" stroke="#CC2929" stroke-width="1.5" fill="none"/>
+        </svg>
+        <div class="scard-amt"><span class="small">$</span>10,000</div>
+        <div class="scard-name">Champion's <span class="red">Squad</span></div>
+        <div class="scard-body">Awarded to the squad of the 1st place finisher. Bonus splits equally among all qualifying players signed up to that home venue.</div>
+      </div>
+      <div class="scard">
+        <svg class="scard-laurel" viewBox="0 0 44 44" fill="none">
+          <path d="M8 32l8-12 8 8 12-16" stroke="#CC2929" stroke-width="1.5" fill="none"/>
+          <path d="M28 12h8v8" stroke="#CC2929" stroke-width="1.5" fill="none"/>
+        </svg>
+        <div class="scard-amt"><span class="small">$</span>5,000</div>
+        <div class="scard-name">Most Improved <span class="red">Squad</span></div>
+        <div class="scard-body">Greatest aggregate point improvement from weeks 1 through 3 to the final weeks of the season. Bonus splits equally among qualifying players.</div>
+      </div>
+      <div class="scard">
+        <svg class="scard-laurel" viewBox="0 0 44 44" fill="none">
+          <rect x="6" y="10" width="32" height="26" stroke="#CC2929" stroke-width="1.5" fill="none"/>
+          <path d="M6 16h32" stroke="#CC2929" stroke-width="1.5"/>
+          <circle cx="14" cy="13" r="1.5" fill="#CC2929"/>
+          <circle cx="22" cy="13" r="1.5" fill="#CC2929"/>
+          <circle cx="30" cy="13" r="1.5" fill="#CC2929"/>
+        </svg>
+        <div class="scard-amt"><span class="small">$</span>10,000</div>
+        <div class="scard-name">Best Attendance <span class="red">Squad</span></div>
+        <div class="scard-body">Squad with the most collective matches logged over 20 weeks. The extra optional night per month is what separates squads. Splits equally among qualifying players.</div>
+      </div>
+    </div>
+
+    <div class="attendance-rule">
+      <div class="attendance-pct">60%</div>
+      <div class="attendance-text">
+        <div class="attendance-h">Minimum attendance to qualify</div>
+        <div class="attendance-b">All three squad bonuses require 60% attendance to qualify for payout. Distribution mirrors each player's attendance percentage. No exceptions.</div>
+      </div>
+      <div class="attendance-eq">12 Match Nights<strong>or 24 Matches</strong></div>
+      <div class="attendance-eq">Distributed by<strong>Attendance %</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ GETTING IN CTA ═══════════════════════════════ -->
+<section class="getting-in sec-center">
+  <div class="stripes"></div>
+  <div class="gi-inner">
+    <div class="sec-eyebrow gi-eyebrow" style="justify-content:center;">Getting in</div>
+    <h1 class="gi-title">Pay. Pick.<br><span class="italic red">Play.</span></h1>
+    <div class="gi-sub">Three steps to your seat at the table.</div>
+
+    <div class="gi-steps">
+      <div class="gi-step" data-num="01">
+        <div class="gi-step-title">Pay your dues</div>
+        <div class="gi-step-body">A one-time entry that locks in your season and gets you on the leaderboard.</div>
+        <div class="gi-step-cost">$50 <small>League dues</small></div>
+      </div>
+      <div class="gi-step" data-num="02">
+        <div class="gi-step-title">Choose your venue</div>
+        <div class="gi-step-body">Pick your home venue. The players signed up there become your squad for the season.</div>
+        <div class="gi-step-cost">Free <small>To select</small></div>
+      </div>
+      <div class="gi-step" data-num="03">
+        <div class="gi-step-title">Play your matches</div>
+        <div class="gi-step-body">Two matches a night. Up to 50 across the season. Every shot moves you up the leaderboard.</div>
+        <div class="gi-step-cost">$10 <small>Per match</small></div>
+      </div>
+    </div>
+
+    <button class="gi-cta" onclick="openModal()">Join the League</button>
+    <div class="gi-fine">stkpoolleague.com · stkpoolleague@gmail.com</div>
+  </div>
+</section>
+
+<!-- ═══ CULTURE ═══════════════════════════════════════ -->
+<section class="culture">
+  <div class="culture-inner">
+    <div class="sec-eyebrow" style="justify-content:center;">Our culture</div>
+    <div class="culture-quote">This is pool culture <span class="italic red">done right.</span></div>
+    <div class="culture-body">No team captains. No politics. No players doing the bare minimum all season and showing up to cash in on playoffs they didn't earn. STK exists to fix what's been broken in pool culture for too long, and that starts with how we treat the game and each other. <strong>Toxic behavior is not tolerated. Not from players. Not from Game Runners.</strong> Anyone can report it anonymously, and it will be handled.</div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══════════════════════════════════════════ -->
+<section class="sec faq-sec" id="faq">
+  <div class="sec-inner">
+    <div class="sec-eyebrow">Questions</div>
+    <h2 class="sec-title">Before you <span class="italic red">break.</span></h2>
+    <div class="faq-grid" style="margin-top:40px;">
+      <div class="faq-item">
+        <div class="faq-q">What is Killer Pool?</div>
+        <div class="faq-a">A single-table format where every player shoots in rotation. One shot per turn. Pocket a ball or take a strike. Hit your tier's strike limit and you're out. Last player standing wins.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Who can play?</div>
+        <div class="faq-a">Any player 21 or older. STK places every player into a handicap tier based on skill, so you compete fairly regardless of experience.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What does it cost?</div>
+        <div class="faq-a">$50 league dues to join, and a $10 green fee per match to play. Dues are paid once your home venue roster activates.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What is a squad?</div>
+        <div class="faq-a">Your squad is everyone signed to your home venue. Squad bonuses are won collectively.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I play at other venues?</div>
+        <div class="faq-a">Yes. If you miss your home venue, make up matches at any participating STK location. Playing an extra night a month at a new venue is rewarded.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How long is the season?</div>
+        <div class="faq-a">20 weeks, with venues activating on a rolling basis. Two matches per night. Street Sharks and higher play up to 50 matches; Rookie Reapers and Smooth Shooters play up to 60.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How do I qualify for the Championship?</div>
+        <div class="faq-a">Top players on the leaderboard at the end of their 20-week season qualify for the STK Summer Blitz Championship in Los Angeles. Every qualifier gets a $1,000 travel stipend.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What is the prize pool?</div>
+        <div class="faq-a">$100,000 seasonal prize pool, building toward a $1,000,000 annual prize pool across the season's championship structure.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══════════════════════════════════════ -->
+<footer class="footer">
+  <div class="foot-inner">
+    <div class="foot-brand">
+      <div class="foot-logo">
+        <img src="assets/logo-skull-circle.png" alt="STK">
+        <div class="foot-logo-text">Shoot to Kill<small>Pool League</small></div>
+      </div>
+      <div class="foot-tag">One shot. One kill. No mercy.</div>
+    </div>
+    <div class="foot-col">
+      <h4>Summer Blitz</h4>
+      <ul>
+        <li>The Format</li>
+        <li>How Points Work</li>
+        <li>Handicap Tiers</li>
+        <li>Merch Unlock</li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>The Money</h4>
+      <ul>
+        <li>$100K Prize Pool</li>
+        <li>Squad Bonuses</li>
+        <li>Championship in LA</li>
+        <li>Travel Stipend</li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>League</h4>
+      <ul>
+        <li>Find a Venue</li>
+        <li>Join the League</li>
+        <li>stkpoolleague@gmail.com</li>
+        <li>@stkpoolleague</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bot">
+    <div class="foot-copy">© 2026 Shoot to Kill Pool League · stkpoolleague.com</div>
+    <div class="foot-mark">Killer Pool · Est. STK</div>
+  </div>
+</footer>
+
+<!-- ═══ MODAL ═════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-inner">
+    <div class="modal-eyebrow">Join the League · Summer Blitz</div>
+    <div class="modal-title">Get on the<br>leaderboard.</div>
+    <div class="modal-sub">21+. Tell us about your game. We'll place you in a tier and reach out with your home venue details. Dues are paid once your roster activates, not now.</div>
+
+    <div class="f-row"><input id="f_name" placeholder="Full Name *"></div>
+    <div class="f-row"><input id="f_email" type="email" placeholder="Email Address *"></div>
+    <div class="f-grid2">
+      <input id="f_city" placeholder="City">
+      <input id="f_state" placeholder="State">
+    </div>
+
+    <div class="f-label">Your game</div>
+    <div class="f-grid2">
+      <input id="f_years" placeholder="Years playing pool">
+      <select id="f_freq">
+        <option value="">How often do you play?</option>
+        <option>A few times a year</option>
+        <option>Monthly</option>
+        <option>Weekly</option>
+        <option>Multiple times a week</option>
+      </select>
+    </div>
+
+    <div class="f-label">League experience</div>
+    <select id="f_league" onchange="toggleLeague()">
+      <option value="">Have you played league pool?</option>
+      <option value="no">No, never</option>
+      <option value="yes">Yes</option>
+    </select>
+    <div id="f_league_detail" style="display:none;">
+      <div class="f-grid2">
+        <select id="f_league_which">
+          <option value="">Which league?</option>
+          <option>APA</option>
+          <option>BCA</option>
+          <option>UPL</option>
+          <option>Other</option>
+        </select>
+        <input id="f_league_hcp" placeholder="Your handicap there">
+      </div>
+    </div>
+
+    <div class="f-label">Fargo rating</div>
+    <select id="f_fargo" onchange="toggleFargo()">
+      <option value="">Do you have a Fargo rating?</option>
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
+    <div id="f_fargo_detail" style="display:none;">
+      <div class="f-grid2">
+        <input id="f_fargo_rating" placeholder="Fargo rating">
+        <input id="f_fargo_num" placeholder="Player number">
+      </div>
+    </div>
+
+    <div class="f-label">Home venue</div>
+    <div class="f-note">No venues in your city yet? Request one below and we'll work on it.</div>
+    <input id="f_venue_req" placeholder="Request a venue — name &amp; address">
+
+    <div class="f-warn">
+      <strong>One rule:</strong> if you misrepresent your skill on this form, your handicap is corrected immediately, you lose 50 points, you're suspended for 2 weeks, and you become ineligible for bonus weeks. Play honest.
+    </div>
+
+    <div id="f_error" class="f-error" style="display:none;"></div>
+    <button class="btn-primary" id="f_submit" style="width:100%;" onclick="submitModal()">Get on the Leaderboard</button>
+    <div class="modal-cancel" onclick="closeModal()">Cancel</div>
+  </div>
+</div>
+
+<!-- ═══ FIREBASE + APP SCRIPT ════════════════════════ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB53RrcebT1bb6X0ylz4Zo7_k_SuHl33sc",
+    authDomain: "stk-pool-league.firebaseapp.com",
+    databaseURL: "https://stk-pool-league-default-rtdb.firebaseio.com",
+    projectId: "stk-pool-league",
+    storageBucket: "stk-pool-league.firebasestorage.app",
+    messagingSenderId: "232049609150",
+    appId: "1:232049609150:web:8985f93fe43d37c99b51ef",
+    measurementId: "G-2D6ZESQG6P"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // expose a writer for the form
+  window.__stkSubmit = async (data) => {
+    await push(ref(db, 'blitz_signups'), data);
+  };
+</script>
+
+<script>
+// ═══ Modal open/close ═══
+function openModal() { document.getElementById('modal').style.display = 'flex'; }
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+// ═══ Conditional fields ═══
+function toggleLeague() {
+  const v = document.getElementById('f_league').value;
+  document.getElementById('f_league_detail').style.display = (v === 'yes') ? 'block' : 'none';
+}
+function toggleFargo() {
+  const v = document.getElementById('f_fargo').value;
+  document.getElementById('f_fargo_detail').style.display = (v === 'yes') ? 'block' : 'none';
+}
+
+// ═══ Submit to Firebase ═══
+async function submitModal() {
+  const err = document.getElementById('f_error');
+  const btn = document.getElementById('f_submit');
+  err.style.display = 'none';
+
+  const name = document.getElementById('f_name').value.trim();
+  const email = document.getElementById('f_email').value.trim();
+
+  if (!name || !email) {
+    err.textContent = 'Name and email are required.';
+    err.style.display = 'block';
+    return;
+  }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    err.textContent = 'Enter a valid email address.';
+    err.style.display = 'block';
+    return;
+  }
+
+  const data = {
+    player_name: name,
+    email: email,
+    city: document.getElementById('f_city').value.trim(),
+    state: document.getElementById('f_state').value.trim(),
+    years_playing: document.getElementById('f_years').value.trim(),
+    play_frequency: document.getElementById('f_freq').value,
+    played_league: document.getElementById('f_league').value,
+    leagues_played: document.getElementById('f_league_which').value,
+    prior_handicap: document.getElementById('f_league_hcp').value.trim(),
+    has_fargo: document.getElementById('f_fargo').value,
+    fargo_rating: document.getElementById('f_fargo_rating').value.trim(),
+    fargo_player_number: document.getElementById('f_fargo_num').value.trim(),
+    requested_venue: document.getElementById('f_venue_req').value.trim(),
+    submitted_at: new Date().toISOString()
+  };
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  try {
+    await window.__stkSubmit(data);
+    document.getElementById('modal-inner').innerHTML = `
+      <div style="text-align:center;padding:20px 0;">
+        <img src="assets/logo-skull-circle.png" style="width:88px;height:88px;margin:0 auto 18px;display:block;object-fit:contain;filter:drop-shadow(0 0 20px rgba(204,41,41,0.5));" alt="STK">
+        <div class="modal-eyebrow" style="text-align:center;">You're on the list.</div>
+        <div class="modal-title" style="margin-bottom:14px;">See you<br>at the table.</div>
+        <div class="modal-sub" style="margin-bottom:20px;">We'll reach out with your tier placement and home venue details. Dues are paid when your roster activates.</div>
+        <a href="https://instagram.com/stkpoolleague" target="_blank" rel="noopener" class="btn-primary" style="display:inline-block;text-decoration:none;margin-bottom:10px;">Follow @stkpoolleague</a>
+        <div class="modal-cancel" onclick="closeModal()">Close</div>
+      </div>`;
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Get on the Leaderboard';
+    err.textContent = 'Something went wrong. Please try again.';
+    err.style.display = 'block';
+  }
+}
+
+// ═══ Smooth scroll ═══
+function scrollToSec(id) {
+  const el = document.getElementById(id);
+  if (el) window.scrollTo({ top: el.offsetTop - 60, behavior: 'smooth' });
+}
+
+// expose handlers used by inline onclick/onchange
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.submitModal = submitModal;
+window.toggleLeague = toggleLeague;
+window.toggleFargo = toggleFargo;
+window.scrollToSec = scrollToSec;
+</script>
+</body>
+</html>
