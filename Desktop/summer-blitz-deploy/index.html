@@ -313,6 +313,56 @@ a { color: inherit; text-decoration: none; }
 .culture-body { font-size: 13px; color: var(--fg-mut); line-height: 1.8; max-width: 640px; margin: 0 auto; font-weight: 300; }
 .culture-body strong { color: var(--fg); font-weight: 500; }
 
+/* ── Hamburger + mobile menu ─────────────────────────── */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--fg);
+  border-radius: 1px;
+  transition: opacity 150ms;
+}
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 63px;
+  left: 0;
+  right: 0;
+  background: rgba(10,10,10,0.97);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 99;
+  flex-direction: column;
+  padding: 8px 20px 16px;
+  border-bottom: 1px solid var(--bd-low);
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu span {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-sec);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--bd-subtle);
+  cursor: pointer;
+  transition: color 150ms;
+}
+.mobile-menu span:last-child { border-bottom: none; }
+.mobile-menu span:hover { color: var(--red-bright); }
+
 /* ── Footer ──────────────────────────────────────────── */
 .footer { background: #060606; padding: 50px 36px 24px; border-top: 1px solid var(--bd-low); }
 .foot-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 56px; }
@@ -384,27 +434,27 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Responsive (mobile) ─────────────────────────────── */
 @media (max-width: 760px) {
-  /* overflow guard */
   html, body { overflow-x: hidden; }
 
-  /* Bug 1: Nav — logo + CTA only */
+  /* Nav — hamburger replaces link row */
   .nav { padding: 12px 20px; }
   .nav-links { display: none; }
   .nav-phrase { display: none; }
   .nav-cta { font-size: 9px; padding: 8px 14px; }
+  .nav-hamburger { display: flex; }
 
-  /* Bug 2: "20" stat — stack without overlap */
+  /* "20" stat — stack without overlap */
   .what-big { font-size: 80px; }
   .what-big-sub { margin-top: 8px; font-size: 16px; letter-spacing: 0.1em; }
   .what-stat { padding: 0 0 10px; }
 
-  /* Bug 3: Stats / pricing — single-col, left-aligned */
+  /* Stats / pricing — single-col, left-aligned */
   .hero-meta { flex-wrap: wrap; gap: 20px; padding-top: 20px; }
   .what-pulls { grid-template-columns: 1fr; }
   .what-pull { width: 100%; text-align: left; }
   .gi-step { text-align: left; }
 
-  /* Bug 4: Vertical padding / min-heights */
+  /* Vertical padding / min-heights */
   .sec { padding: 44px 20px; }
   .hero { padding: 44px 20px 36px; }
   .getting-in { padding: 50px 20px; }
@@ -413,10 +463,7 @@ a { color: inherit; text-decoration: none; }
   .scope { padding: 18px 20px; }
   .choose { padding: 20px 0 0; }
   .format-row { margin-bottom: 28px; }
-  .champ-strip { margin-top: 24px; padding: 22px 20px; }
-  .attendance-rule { padding: 18px 20px; }
   .hero-right { min-height: auto; padding: 28px 0; }
-  .mcard { min-height: auto; }
 
   /* Headlines */
   .hero-h1 { font-size: 52px; }
@@ -430,21 +477,46 @@ a { color: inherit; text-decoration: none; }
   .hero-ring { width: 260px; height: 260px; }
   .hero-ring-2 { width: 300px; height: 300px; }
 
-  /* Remaining 2-col grids → 1 col */
+  /* 2-col grids → 1 col */
+  .what-pulls { grid-template-columns: 1fr; }
   .tiers { grid-template-columns: 1fr; }
   .merch-grid { grid-template-columns: 1fr; }
-  .mcard { grid-template-columns: 1fr; }
+  .mcard { display: flex; flex-direction: column; min-height: auto; }
   .mcard-bigpts { display: none; }
   .foot-inner { grid-template-columns: 1fr; gap: 32px; }
   .foot-bot { flex-direction: column; gap: 8px; text-align: center; }
 
-  /* Prize champ strip → stack */
-  .champ-strip { grid-template-columns: 1fr; gap: 16px; }
-  .champ-stipend { border-left: none; padding-left: 0; border-top: 1px solid var(--bd-red); padding-top: 14px; align-items: flex-start; }
+  /* Champ strip — flex column, no overflow */
+  .champ-strip {
+    display: flex; flex-direction: column; gap: 16px;
+    margin-top: 24px; padding: 22px 20px;
+    max-width: 100%; box-sizing: border-box;
+  }
+  .champ-stipend {
+    border-left: none; padding-left: 0;
+    border-top: 1px solid var(--bd-red); padding-top: 14px;
+    align-items: flex-start;
+  }
 
-  /* Squad attendance rule → stack */
-  .attendance-rule { grid-template-columns: 1fr; gap: 16px; }
-  .attendance-eq { border-left: none; padding-left: 0; border-top: 1px solid var(--bd-red); padding-top: 14px; }
+  /* Attendance rule — flex column, no overflow */
+  .attendance-rule {
+    display: flex; flex-direction: column; gap: 16px;
+    padding: 18px 20px;
+    max-width: 100%; box-sizing: border-box;
+  }
+  .attendance-eq {
+    border-left: none; padding-left: 0;
+    border-top: 1px solid var(--bd-red); padding-top: 14px;
+  }
+
+  /* Squad cards — constrain width */
+  .scard { max-width: 100%; box-sizing: border-box; }
+  .scard-amt { font-size: 40px; }
+
+  /* Payout rows — prevent amount overflow */
+  .payout { grid-template-columns: 44px 1fr auto; gap: 12px; padding: 12px 14px; }
+  .payout-amt { font-size: 18px; }
+  .payout.gold .payout-amt { font-size: 20px; }
 
   /* Scope strip — 2-col for 5 cells */
   .scope-inner { grid-template-columns: 1fr 1fr; }
@@ -469,8 +541,18 @@ a { color: inherit; text-decoration: none; }
   <div class="nav-right">
     <span class="nav-phrase">Summer Blitz · 2026</span>
     <div class="nav-cta" onclick="openModal()">Join the League</div>
+    <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+<div class="mobile-menu" id="mobile-menu">
+  <span onclick="mobileNav('format')">Format</span>
+  <span onclick="mobileNav('points')">Points</span>
+  <span onclick="mobileNav('tiers')">Tiers</span>
+  <span onclick="mobileNav('prize')">Prize Pool</span>
+  <span onclick="mobileNav('squad')">Squad Bonuses</span>
+</div>
 
 <!-- ═══ HERO ═════════════════════════════════════════ -->
 <section class="hero">
@@ -478,7 +560,7 @@ a { color: inherit; text-decoration: none; }
   <div class="hero-vert">Shoot · to · Kill · Pool · League</div>
   <div class="hero-inner">
     <div class="hero-left">
-      <div class="eyebrow">Season One · June through October</div>
+      <div class="eyebrow">Season One · Venues Activating June–July</div>
       <div class="hero-tag">Shoot to Kill <span>×</span> Summer Blitz</div>
       <h1 class="hero-h1">Summer<br><span class="red">Blitz.</span></h1>
       <p class="hero-italic"><strong>20 weeks. One leaderboard. One champion.</strong> An individual points race open to every STK player. No teams. No waiting. Just you, the table, and a leaderboard that never sleeps.</p>
@@ -505,7 +587,7 @@ a { color: inherit; text-decoration: none; }
 <!-- ═══ SCOPE STRIP ══════════════════════════════════ -->
 <section class="scope">
   <div class="scope-inner">
-    <div class="scope-cell"><div class="scope-num">20</div><div class="scope-lbl">Weeks · Jun→Oct</div></div>
+    <div class="scope-cell"><div class="scope-num">20</div><div class="scope-lbl">Weeks · Jun–Dec</div></div>
     <div class="scope-cell"><div class="scope-num">2</div><div class="scope-lbl">Matches per Night</div></div>
     <div class="scope-cell"><div class="scope-num">50</div><div class="scope-lbl">Matches per Player</div></div>
     <div class="scope-cell"><div class="scope-num">$100K</div><div class="scope-lbl">Championship Pool</div></div>
@@ -761,7 +843,7 @@ a { color: inherit; text-decoration: none; }
       </svg>
       <div class="champ-text">
         <div class="champ-title">Every qualifier flies <span class="red">to LA.</span></div>
-        <div class="champ-body">Every qualifying player receives a travel stipend. The championship is held in Los Angeles as a full spirits festival experience. There is no better way to close out your summer.</div>
+        <div class="champ-body">Every qualifying player receives a travel stipend. The championship is held in Los Angeles as a full spirits festival experience. There is no better way to close out your year.</div>
       </div>
       <div class="champ-stipend">
         <div class="champ-stipend-amt">$1,000</div>
@@ -882,7 +964,7 @@ a { color: inherit; text-decoration: none; }
       </div>
       <div class="faq-item">
         <div class="faq-q">What does it cost?</div>
-        <div class="faq-a">$50 league dues to join, and a $10 green fee per match to play. Dues are paid once your home venue roster activates.</div>
+        <div class="faq-a">$50 league dues to join, and a $10 green fee per match to play. Dues are paid once your home venue hits 15 players and activates.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">What is a squad?</div>
@@ -894,7 +976,7 @@ a { color: inherit; text-decoration: none; }
       </div>
       <div class="faq-item">
         <div class="faq-q">How long is the season?</div>
-        <div class="faq-a">20 weeks, with venues activating on a rolling basis. Two matches per night. Street Sharks and higher play up to 50 matches; Rookie Reapers and Smooth Shooters play up to 60.</div>
+        <div class="faq-a">20 weeks per venue. Venues activate June–July once 15 players sign up, with the season completing in December. Two matches per night. Street Sharks and higher play up to 50 matches; Rookie Reapers and Smooth Shooters play up to 60.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">How do I qualify for the Championship?</div>
@@ -957,7 +1039,7 @@ a { color: inherit; text-decoration: none; }
   <div class="modal" id="modal-inner">
     <div class="modal-eyebrow">Join the League · Summer Blitz</div>
     <div class="modal-title">Get on the<br>leaderboard.</div>
-    <div class="modal-sub">21+. Tell us about your game. We'll place you in a tier and reach out with your home venue details. Dues are paid once your roster activates, not now.</div>
+    <div class="modal-sub">21+. Tell us about your game. We'll place you in a tier and reach out with your home venue details. Dues are paid once your venue hits 15 players and activates — not now.</div>
 
     <div class="f-row"><input id="f_name" placeholder="Full Name *"></div>
     <div class="f-row"><input id="f_email" type="email" placeholder="Email Address *"></div>
@@ -1130,12 +1212,22 @@ function scrollToSec(id) {
 }
 
 // expose handlers used by inline onclick/onchange
+function toggleMenu() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+function mobileNav(id) {
+  document.getElementById('mobile-menu').classList.remove('open');
+  scrollToSec(id);
+}
+
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.submitModal = submitModal;
 window.toggleLeague = toggleLeague;
 window.toggleFargo = toggleFargo;
 window.scrollToSec = scrollToSec;
+window.toggleMenu = toggleMenu;
+window.mobileNav = mobileNav;
 </script>
 </body>
 </html>
