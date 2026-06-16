@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "stk-pool-league",
+    "site": "stk-main-website",
     "public": ".",
     "ignore": [
       "firebase.json",

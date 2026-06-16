@@ -1,12 +1,5 @@
 {
   "projects": {
-    "default": "stk-pool-league"
-  },
-  "targets": {
-    "stk-pool-league": {
-      "hosting": {
-        "summer-blitz": ["stk-pool-league"]
-      }
-    }
+    "default": "stk-main-website"
   }
 }
