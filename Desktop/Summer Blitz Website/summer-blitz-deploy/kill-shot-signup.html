@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kill Shot — Sign Up</title>
+<meta name="description" content="Send your Kill Shot entry fee by Venmo. $25 to register for the series. Starts August 15.">
+<meta property="og:title" content="Kill Shot — Sign Up">
+<meta property="og:description" content="Send your Kill Shot entry fee by Venmo. $25 to register for the series. Starts August 15.">
+<meta property="og:image" content="https://stkpoolleague.com/assets/logo-skull-circle.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://stkpoolleague.com/assets/logo-skull-circle.png">
+<link rel="icon" href="favicon.ico">
+<style>
+/* ── Fonts ───────────────────────────────────────────── */
+@font-face { font-family: 'Oswald'; src: url('fonts/Oswald-VariableFont_wght.ttf') format('truetype'); font-weight: 200 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('fonts/Inter-VariableFont.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
+
+/* ── Tokens ──────────────────────────────────────────── */
+:root {
+  --near-black: #0f0f0f;
+  --bg: #0f0f0f;
+  --surface-1: #141414;
+  --surface-red-2: #1a0808;
+  --red: #CC2929;
+  --red-bright: #D5413D;
+  --fg: #fff;
+  --fg-sec: #ccc;
+  --fg-mut: #888;
+  --fg-dim: #555;
+  --fg-ghost: #333;
+  --bd-low: rgba(255,255,255,0.07);
+  --bd-mid: rgba(255,255,255,0.14);
+  --bd-red: rgba(204,41,41,0.25);
+  --bd-red-hi: rgba(204,41,41,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); }
+body { font-family: 'Inter', sans-serif; color: var(--fg); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--red); }
+
+.wrap { max-width: 640px; margin: 0 auto; padding: 0 24px; }
+
+.btn-ghost { font-size: 11px; font-weight: 600; color: var(--fg-sec); background: transparent; padding: 14px 28px; letter-spacing: 0.16em; text-transform: uppercase; border-radius: 2px; cursor: pointer; transition: border-color 150ms, color 150ms; border: 1px solid var(--bd-mid); font-family: 'Inter', sans-serif; display: inline-block; }
+.btn-ghost:hover { border-color: var(--red); color: var(--fg); }
+
+/* ── Logo ring animation (copied from index.html hero) ─ */
+.hero-right { position: relative; display: flex; align-items: center; justify-content: center; min-height: 460px; }
+.hero-logo-glow { position: absolute; width: 480px; height: 480px; background: radial-gradient(circle, rgba(204,41,41,0.42) 0%, rgba(204,41,41,0.15) 35%, transparent 65%); filter: blur(8px); }
+.hero-logo { position: relative; width: 360px; height: 360px; object-fit: contain; filter: drop-shadow(0 0 40px rgba(204,41,41,0.4)); }
+.hero-ring { position: absolute; width: 480px; height: 480px; border-radius: 50%; border: 1px solid rgba(204,41,41,0.18); animation: spin 60s linear infinite; }
+.hero-ring::before { content: ''; position: absolute; top: -3px; left: 50%; width: 6px; height: 6px; background: var(--red); border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 10px var(--red); }
+.hero-ring-2 { width: 540px; height: 540px; animation-duration: 90s; animation-direction: reverse; border-color: rgba(204,41,41,0.1); border-style: dashed; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Signup page uses a compact version of the same ring rig */
+.mark { min-height: 290px; }
+.mark .hero-logo { width: 165px; height: 165px; }
+.mark .hero-logo-glow { width: 235px; height: 235px; }
+.mark .hero-ring { width: 235px; height: 235px; }
+.mark .hero-ring-2 { width: 276px; height: 276px; }
+
+/* ── Page ────────────────────────────────────────────── */
+.page { padding: 48px 0 72px; text-align: center; }
+.page h1 { font-family: 'Oswald', sans-serif; font-size: 54px; font-weight: 700; text-transform: uppercase; line-height: 1; }
+.page h1 span { color: var(--red); }
+.page-date { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.22em; text-transform: uppercase; margin-top: 16px; }
+
+.fees { display: flex; flex-direction: column; gap: 10px; margin-top: 34px; text-align: left; }
+.fee { display: flex; align-items: center; gap: 18px; background: var(--surface-1); border: 1px solid var(--bd-low); border-left: 3px solid var(--red); border-radius: 3px; padding: 18px 22px; }
+.fee-amt { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; color: var(--red); line-height: 1; min-width: 62px; }
+.fee-txt { font-size: 14px; color: var(--fg-sec); line-height: 1.6; }
+
+.pay { margin-top: 40px; background: var(--surface-red-2); border: 1px solid var(--bd-red-hi); border-radius: 4px; padding: 34px 26px; }
+.pay-lbl { font-size: 10px; font-weight: 700; color: var(--red); letter-spacing: 0.22em; text-transform: uppercase; }
+
+.qr { width: 330px; max-width: 100%; margin: 22px auto 0; background: #fff; border-radius: 4px; padding: 14px; }
+.qr img { width: 100%; height: auto; }
+
+.handle { font-family: 'Oswald', sans-serif; font-size: 27px; font-weight: 700; margin-top: 22px; }
+.handle-lbl { font-size: 10px; font-weight: 600; color: var(--fg-mut); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 8px; }
+
+.back { margin-top: 40px; }
+
+.foot { border-top: 1px solid var(--bd-low); padding: 30px 0; text-align: center; font-size: 11px; color: var(--fg-dim); letter-spacing: 0.1em; }
+
+@media (max-width: 700px) {
+  .page { padding: 30px 0 52px; }
+  .page h1 { font-size: 38px; }
+  .mark { min-height: 235px; }
+  .mark .hero-logo { width: 130px; height: 130px; }
+  .mark .hero-logo-glow { width: 188px; height: 188px; }
+  .mark .hero-ring { width: 188px; height: 188px; }
+  .mark .hero-ring-2 { width: 221px; height: 221px; }
+  .pay { padding: 26px 18px; }
+  .fee { gap: 14px; padding: 16px 18px; }
+  .fee-amt { font-size: 24px; min-width: 54px; }
+  .handle { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<section class="page">
+  <div class="wrap">
+
+    <div class="hero-right mark">
+      <div class="hero-logo-glow"></div>
+      <div class="hero-ring hero-ring-2"></div>
+      <div class="hero-ring"></div>
+      <img class="hero-logo" src="assets/logo-skull-circle.png" alt="STK Skull">
+    </div>
+
+    <h1>Kill <span>Shot</span></h1>
+    <div class="page-date">Starts August 15</div>
+
+    <div class="fees">
+      <div class="fee">
+        <div class="fee-amt">$25</div>
+        <div class="fee-txt">to register for the series.</div>
+      </div>
+      <div class="fee">
+        <div class="fee-amt">$10</div>
+        <div class="fee-txt">per match. 2 matches per night.</div>
+      </div>
+      <div class="fee">
+        <div class="fee-amt">$5</div>
+        <div class="fee-txt">per extra strike. 2 extra strikes max, for a total of 5 strikes to start next match.</div>
+      </div>
+    </div>
+
+    <div class="pay">
+      <div class="pay-lbl">Send Registration and Entry Fees Here</div>
+      <div class="qr"><img src="assets/venmo-qr.jpg" alt="Venmo QR code for @NeilleCaroline"></div>
+      <div class="handle">@NeilleCaroline</div>
+      <div class="handle-lbl">Venmo</div>
+    </div>
+
+    <div class="back"><a class="btn-ghost" href="kill-shot.html">Back to Kill Shot</a></div>
+
+  </div>
+</section>
+
+<div class="foot"><div class="wrap">Shoot to Kill Pool League</div></div>
+
+</body>
+</html>

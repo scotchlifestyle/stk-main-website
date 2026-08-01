@@ -6,6 +6,13 @@
       "firebase.json",
       "/.*"
     ],
+    "redirects": [
+      {
+        "source": "/",
+        "destination": "/kill-shot.html",
+        "type": 302
+      }
+    ],
     "rewrites": [
       {
         "source": "**",
