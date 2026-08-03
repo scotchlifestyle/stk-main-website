@@ -1,2 +1,14 @@
+# This repo's root is the home directory, so ignore everything by default and
+# allowlist only the deploy folder. Without this, `git add -A` would stage
+# ~/.ssh, ~/.claude.json, shell history, and npm tokens into a public remote.
+/*
+!/.gitignore
+
+!/Desktop/
+/Desktop/*
+!/Desktop/Summer Blitz Website/
+/Desktop/Summer Blitz Website/*
+!/Desktop/Summer Blitz Website/summer-blitz-deploy/
+
 .DS_Store
 .firebase/
