@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('t');
+  if (/^[0-9a-f]{64}$/i.test(token || '')) {
+    window.location.replace('/social/?t=' + encodeURIComponent(token.toLowerCase()));
+  }
+}());
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kill Shot — 5 Weeks. $5,000. One Last Player Standing.</title>
