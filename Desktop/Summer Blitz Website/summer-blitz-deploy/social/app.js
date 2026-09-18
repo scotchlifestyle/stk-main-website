@@ -30,6 +30,12 @@ import './stk-data.js';
   const invitePreviewTimeout = Number.isFinite(window.STK_INVITE_PREVIEW_TIMEOUT_MS)
     ? window.STK_INVITE_PREVIEW_TIMEOUT_MS : 8000;
 
+  // Detect /social/post/<id> — used for share-link deep links.
+  const linkedPostId = (function () {
+    var m = location.pathname.match(/\/social\/post\/([^\/]+)/);
+    return m ? m[1] : null;
+  }());
+
   const BOUNTY_LABEL = 'Bounty: previous winner. Eliminate this player while still active to earn an extra life.';
   // A card still read straight from the scoring tables has no social_posts row
   // behind it, so likes, comments and removal have nothing to write to. Say so
@@ -247,6 +253,19 @@ import './stk-data.js';
     feed.replaceChildren();
     for (const post of posts) feed.append(renderPost(post));
     icons();
+    if (linkedPostId) scrollToLinkedPost(linkedPostId);
+  }
+
+  // Scroll the linked post into view and give it a brief highlight.
+  // If the id is not found (deleted or bad link) we degrade silently
+  // — the feed stays visible and no error is shown.
+  function scrollToLinkedPost(postId) {
+    var target = feed.querySelector('[data-post-id="' + postId + '"]');
+    if (!target) return; // not found: show normal feed, no error
+    target.classList.add('post-highlighted');
+    target.scrollIntoView({ block: 'center' });
+    // Remove the highlight after 2.5 s so it reads as "landed here" not "error"
+    setTimeout(function () { target.classList.remove('post-highlighted'); }, 2500);
   }
 
   // ---- account panel: signed-out sign-in, invite claim, signed-in identity ----
@@ -268,8 +287,8 @@ import './stk-data.js';
       button.replaceChildren();
       if (session) {
         button.append(el('span', 'avatar', window.STKData.initials(me ? me.full_name : session.user.email || 'Account')));
-        button.append(el('span', '', me ? 'Profile' : 'Claim account'));
-        button.setAttribute('aria-label', me ? 'Open your profile' : 'Claim your account');
+        button.append(el('span', '', me ? 'Sign out' : 'Claim account'));
+        button.setAttribute('aria-label', me ? 'Sign out' : 'Claim your account');
         button.removeAttribute('aria-haspopup');
       } else {
         const logo = el('img', 'account-logo'); logo.src = assets.logo; logo.alt = '';
@@ -280,8 +299,12 @@ import './stk-data.js';
     const compose = $('#stk-compose');
     if (compose) {
       compose.hidden = !session || !me;
-      compose.querySelector('.avatar').textContent = me ? window.STKData.initials(me.full_name) : '';
-      compose.querySelector('.name h3').textContent = me ? me.full_name : '';
+      // The compose card is a prompt, not an identity claim. It reads "STK"
+      // and "Write a post" so members are invited to speak, not shown their
+      // own name back at them. The published post still carries the member's
+      // author info, which the render path sets from `me`.
+      compose.querySelector('.avatar').textContent = 'STK';
+      compose.querySelector('.name h3').textContent = 'Write a post';
     }
   }
 
@@ -341,10 +364,7 @@ import './stk-data.js';
     if (me) {
       panel.append(el('div', 'eyebrow', 'Your account'), el('h2', '', me.full_name));
       if (me.player_number) panel.append(el('p', 'muted', 'Player number · ' + me.player_number));
-      const out = el('button', '', 'Sign out');
-      out.id = 'stk-signout';
-      out.type = 'button';
-      panel.append(out);
+      // Sign out lives on the top-right control now, not on this card.
       return panel;
     }
     panel.append(el('div', 'eyebrow', 'Your account'), el('h2', '', session ? 'Claim your player account' : 'Sign in'),
@@ -374,7 +394,21 @@ const history=el('section','panel');history.append(el('h2','','Match history'),e
   }
 
   root.addEventListener('click', async e => {
-    if (e.target.closest('#stk-account-button')) { if (session) navigate('profile'); else openSignIn(); return; }
+    if (e.target.closest('#stk-account-button')) {
+      if (me) {
+        // Top-right is the auth action, not a profile shortcut. Profile has its
+        // own nav tab; keeping this one control tied to signing in/out lets a
+        // signed-in member sign out from anywhere, including inside the feed.
+        const res = await window.STKData.auth.signOut();
+        if (res.error) { $('#stk-status').textContent = res.error.message; return; }
+        await refreshFeed();
+        navigate(inviteToken ? 'profile' : 'feed');
+        return;
+      }
+      if (session) { navigate('profile'); return; }
+      openSignIn();
+      return;
+    }
     if (e.target.closest('#stk-open-signin')) { openSignIn(); return; }
     if (e.target.closest('#stk-auth-close')) { dialog.close(); return; }
     const view = e.target.closest('[data-view],[data-help-view]');
@@ -406,6 +440,29 @@ const history=el('section','panel');history.append(el('h2','','Match history'),e
       if (res.error) { $('#stk-status').textContent = 'Could not remove that comment: ' + res.error; return; }
       await refreshFeed();
       $('#stk-status').textContent = 'Comment removed.';
+      return;
+    }
+    if (b.hasAttribute('data-share')) {
+      const article = b.closest('article');
+      const postId = article ? article.dataset.postId : null;
+      if (!postId || isDerived(postId)) { $('#stk-status').textContent = 'This post does not have a permanent link yet.'; return; }
+      const post = data.feed.find(p => p.id === postId);
+      const shareUrl = 'https://stkpoolleague.com/social/post/' + postId;
+      const shareTitle = (post && post.meta_label) ? post.meta_label : 'Shoot to Kill Pool League';
+      const shareText = (post && post.body) ? post.body.slice(0, 140) : 'Check out this post on the STK feed.';
+      if (navigator.share) {
+        navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(() => {});
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          const prev = b.textContent;
+          b.textContent = 'Link copied!';
+          setTimeout(() => { b.innerHTML = '<i data-lucide="share-2" aria-hidden="true"></i>Share'; icons(); }, 2000);
+          $('#stk-status').textContent = 'Link copied to clipboard.';
+          setTimeout(() => { if ($('#stk-status').textContent === 'Link copied to clipboard.') $('#stk-status').textContent = ''; }, 2000);
+        }).catch(() => { $('#stk-status').textContent = 'Could not copy the link. Try long-pressing it.'; });
+      } else {
+        $('#stk-status').textContent = shareUrl;
+      }
       return;
     }
     if (b.hasAttribute('data-like')) {
@@ -525,9 +582,44 @@ const history=el('section','panel');history.append(el('h2','','Match history'),e
   updateRsvps();
   renderBoard();
   applyIdentity();
-  navigate(inviteToken ? 'profile' : 'feed');
+  navigate(linkedPostId ? 'feed' : (inviteToken ? 'profile' : 'feed'));
   icons();
   reportLoadErrors(data);
+
+  // Resolve the scoreboard nav to a live match or an inactive state.
+  // Runs async and never blocks the rest of the page.
+  (async function resolveScoreboardNav() {
+    var nav = document.getElementById('stk-scoreboard-nav');
+    if (!nav) return;
+    try {
+      var session = await window.STKData.loadLiveSession();
+      if (session && session.kind === 'live') {
+        var a = document.createElement('a');
+        a.id = 'stk-scoreboard-nav';
+        a.href = 'https://stkscore.live/live/' + session.id;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.setAttribute('aria-label', 'Scoreboard (opens in a new tab)');
+        a.className = 'live';
+        a.innerHTML = nav.innerHTML;
+        nav.parentNode.replaceChild(a, nav);
+      } else if (session && session.kind === 'scheduled') {
+        // A match is on the calendar for tonight but no scoreboard has spun up
+        // yet. Announce the venue rather than lie with "no match tonight".
+        nav.querySelector('span').textContent = 'Tonight @ ' + (session.venue_name || 'TBA');
+        nav.setAttribute('aria-label', 'Tonight at ' + (session.venue_name || 'the venue') + '. Scoreboard opens once the match starts.');
+      } else {
+        nav.querySelector('span').textContent = 'No match tonight';
+        nav.setAttribute('aria-label', 'No match is live tonight');
+      }
+    } catch (err) {
+      // A failed lookup is not the same state as no match running, and the two
+      // call for different action, so they must never share a label.
+      var span = nav.querySelector('span');
+      if (span) span.textContent = 'Scoreboard unavailable';
+      nav.setAttribute('aria-label', 'Scoreboard is temporarily unavailable');
+    }
+  }());
 
   async function initializeInvite() {
     if (!inviteToken) return;

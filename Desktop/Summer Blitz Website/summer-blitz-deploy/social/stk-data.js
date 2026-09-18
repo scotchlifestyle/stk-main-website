@@ -19,6 +19,17 @@ const LEAGUE_AUTHOR = { author_name: 'Shoot to Kill', author_initials: 'STK', au
 
 const dayLabel = iso => new Date(iso).toLocaleString('en-US', { timeZone: SERIES_TZ, month: 'short', day: 'numeric' });
 
+// "Today" in the league's timezone. UTC rolls over at 8pm ET, which hid the
+// current night's match from Upcoming and from the scoreboard nav.
+function todayInSeriesTz() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: SERIES_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+}
+function todayStartUtcIso() {
+  return startsAt(todayInSeriesTz(), '00:00:00', SERIES_TZ);
+}
+
 // scheduled_games stores date, time and IANA zone separately; build a real instant.
 function zoneOffset(instant, zone) {
   const fmt = new Intl.DateTimeFormat('en-US', {
@@ -63,7 +74,7 @@ async function loadCalendar() {
     .eq('status', 'scheduled')
     .order('scheduled_date', { ascending: true })
     .order('start_time', { ascending: true });
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInSeriesTz();
   return (games || [])
     .filter(g => g.scheduled_date >= today)
     .map(g => ({
@@ -589,4 +600,33 @@ export const writes = {
   },
 };
 
-window.STKData = { load, auth, writes, initials };
+// The scoreboard chip is one control that reflects three real states so the
+// feed never lies. A live scoring session wins; if none, tonight's scheduled
+// game keeps the chip meaningful; if neither, the chip goes quiet. "Today" is
+// resolved in the league's timezone so the gate does not slide at 8pm ET.
+async function loadLiveSession() {
+  const today = todayInSeriesTz();
+  const { data: live, error: liveErr } = await sb
+    .from('scoring_sessions')
+    .select('id, event_name, status, created_at')
+    .eq('status', 'active')
+    .gte('created_at', todayStartUtcIso())
+    .order('created_at', { ascending: false })
+    .limit(1);
+  if (!liveErr && live && live[0]) {
+    return { kind: 'live', id: live[0].id, event_name: live[0].event_name };
+  }
+  const { data: scheduled, error: schErr } = await sb
+    .from('scheduled_games')
+    .select('id, venue_name, start_time')
+    .eq('status', 'scheduled')
+    .eq('scheduled_date', today)
+    .order('start_time', { ascending: false })
+    .limit(1);
+  if (!schErr && scheduled && scheduled[0]) {
+    return { kind: 'scheduled', venue_name: scheduled[0].venue_name, start_time: scheduled[0].start_time };
+  }
+  return null;
+}
+
+window.STKData = { load, auth, writes, initials, loadLiveSession };

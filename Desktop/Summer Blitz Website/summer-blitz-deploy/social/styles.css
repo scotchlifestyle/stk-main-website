@@ -114,4 +114,9 @@ html,body{width:100%;height:100%;margin:0!important;padding:0!important;overflow
 #stk-social #stk-auth-close{float:right}
 #stk-social #stk-auth-dialog form{clear:both;margin-top:18px}
 #stk-social #stk-auth-dialog a{color:#fff;text-decoration:underline}
+#stk-scoreboard-nav{min-width:0;min-height:54px;padding:6px 3px;border:0;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:500;line-height:1.25;text-align:center;color:var(--st-muted);text-decoration:none;background:none;cursor:default;opacity:.45}
+#stk-scoreboard-nav.live{opacity:1;cursor:pointer;text-decoration:none;color:var(--st-muted)}
+#stk-scoreboard-nav.live:hover{background:var(--st-soft);color:var(--st-red)}
+#stk-scoreboard-nav svg{width:19px;height:19px}
+#stk-social .post-highlighted{outline:2px solid var(--st-red);outline-offset:2px}
 #stk-social :focus-visible{outline:2px solid #fff;outline-offset:3px}

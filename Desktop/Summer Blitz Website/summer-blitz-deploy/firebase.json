@@ -14,11 +14,15 @@
     "redirects": [
       {
         "source": "/",
-        "destination": "/kill-shot.html",
+        "destination": "/social/",
         "type": 302
       }
     ],
     "rewrites": [
+      {
+        "source": "/social/post/**",
+        "destination": "/social/index.html"
+      },
       {
         "source": "**",
         "destination": "/index.html"
