@@ -42,6 +42,16 @@ import './stk-data.js';
   // rather than pretend the action took.
   const DERIVED_NOTE = 'This card is read live from the match results and is not stored on the feed yet. An admin sign-in publishes it.';
   const isDerived = id => String(id || '').indexOf('derived:') === 0;
+  // Storage URLs pointed at Supabase's transform endpoint deliver a decoded-
+  // size much closer to what the phone actually renders. 1280 covers a 3x DPR
+  // phone; anything larger only costs decode memory.
+  function feedPhotoUrl(raw) {
+    if (!raw || typeof raw !== 'string') return raw;
+    const marker = '/storage/v1/object/public/';
+    if (raw.indexOf(marker) === -1) return raw;
+    const transformed = raw.replace(marker, '/storage/v1/render/image/public/');
+    return transformed + (transformed.indexOf('?') === -1 ? '?' : '&') + 'width=1280&quality=80';
+  }
   function bountyBadge(label) {
     const badge = el('span', 'bounty');
     badge.setAttribute('aria-label', label || BOUNTY_LABEL);
@@ -197,16 +207,40 @@ import './stk-data.js';
       poster.append(el('div', 'eyebrow', card.eyebrow), el('h2', '', card.headline), el('p', 'muted', card.note));
       mount.append(poster);
     } else if (card.type === 'photo') {
+      // Stacking every photo pushes the actions row a full screen below the
+      // fold. A horizontal carousel keeps one album to one card the way
+      // Instagram does, with heart/comment/share reachable without scrolling.
+      const track = el('div', 'photo-carousel');
+      track.setAttribute('role', 'region');
+      track.setAttribute('aria-label', 'Photo album, swipe to see more');
       for (const m of media) {
-        const wrap = el('div', 'photo-wrap'), image = el('img');
-        image.src = m.url; image.alt = m.alt || '';
+        const wrap = el('div', 'photo-wrap');
+        const image = el('img');
+        // A raw match-media JPEG can be 3000x4000 / 5+MB, which is above the
+        // decoded-image budget mobile Safari will spend before falling back
+        // to a black tile. Route through Supabase's image transform so the
+        // client only decodes a phone-sized copy.
+        image.src = feedPhotoUrl(m.url);
+        image.alt = m.alt || '';
+        image.loading = 'lazy';
+        image.decoding = 'async';
         wrap.append(image);
         if (!m.watermarked) {
           const mark = el('img', 'watermark');
           mark.src = assets.logo; mark.alt = 'STK watermark';
           wrap.append(mark);
         }
-        mount.append(wrap);
+        track.append(wrap);
+      }
+      mount.append(track);
+      if (media.length > 1) {
+        const count = el('p', 'photo-count', '1 / ' + media.length);
+        count.setAttribute('aria-live', 'polite');
+        track.addEventListener('scroll', () => {
+          const idx = Math.round(track.scrollLeft / track.clientWidth) + 1;
+          count.textContent = idx + ' / ' + media.length;
+        }, { passive: true });
+        mount.append(count);
       }
       if (card.label) mount.append(el('p', 'photo-label', card.label));
     }
@@ -605,9 +639,31 @@ const history=el('section','panel');history.append(el('h2','','Match history'),e
         nav.parentNode.replaceChild(a, nav);
       } else if (session && session.kind === 'scheduled') {
         // A match is on the calendar for tonight but no scoreboard has spun up
-        // yet. Announce the venue rather than lie with "no match tonight".
-        nav.querySelector('span').textContent = 'Tonight @ ' + (session.venue_name || 'TBA');
-        nav.setAttribute('aria-label', 'Tonight at ' + (session.venue_name || 'the venue') + '. Scoreboard opens once the match starts.');
+        // yet. Take the reader to a branded holding page rather than lie with
+        // "no match tonight". Populating the venue/time up here saves the
+        // holding page an extra fetch.
+        var b = document.createElement('button');
+        b.id = 'stk-scoreboard-nav';
+        b.type = 'button';
+        b.setAttribute('data-view', 'scoreboard-pending');
+        b.setAttribute('aria-label', 'Scoreboard (opens once the match starts)');
+        b.className = 'live';
+        b.innerHTML = nav.innerHTML;
+        b.querySelector('span').textContent = 'Scoreboard';
+        nav.parentNode.replaceChild(b, nav);
+        var venue = $('#stk-pending-venue');
+        var when = $('#stk-pending-when');
+        if (venue) venue.textContent = session.venue_name || 'Tonight';
+        if (when && session.start_time) {
+          var t = String(session.start_time).slice(0, 5).split(':');
+          var h = parseInt(t[0], 10);
+          var m = t[1];
+          var suffix = h >= 12 ? 'PM' : 'AM';
+          var hh = ((h + 11) % 12) + 1;
+          when.textContent = 'Tonight · ' + hh + (m === '00' ? '' : ':' + m) + ' ' + suffix;
+        } else if (when) {
+          when.textContent = 'Tonight';
+        }
       } else {
         nav.querySelector('span').textContent = 'No match tonight';
         nav.setAttribute('aria-label', 'No match is live tonight');
