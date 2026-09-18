@@ -1,0 +1,7 @@
+{
+  "name": "stk-main-website",
+  "private": true,
+  "scripts": {
+    "deploy": "node build-post-pages.mjs && firebase deploy --only hosting:stk-main-website"
+  }
+}
